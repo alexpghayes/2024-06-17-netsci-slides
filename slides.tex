@@ -25,19 +25,139 @@
 
 \title{Estimating network-mediated causal effects via spectral embeddings}
 
-\date{2024-06-17 at NetSci 2014}
-\author{Alex Hayes}
-\institute{Joint work with Mark Fredrickson and Keith Levin}
+\date{NetSci 2014}
+\author{Alex Hayes, joint with Mark Fredrickson and Keith Levin }
+\institute{University of Wisconsin-Madison}
 
 
 \begin{document}
 
 \maketitle
 
-\section{Does mindfulness reduce psychological distress?}
+{
+    \usebackgroundtemplate{\includegraphics[width=\paperwidth, height=\paperheight]{./figures/hm-app.png}}
+    \begin{frame}
+    \end{frame}
+}
 
-\begin{frame}
-    four preregistered mediators (Five Facet Mindfulness Questionnaire mindful action subscale, NIH Toolbox Loneliness, Drexel Defusion Scale, and Meaning in Life Questionnaire presence subscale).
+\begin{frame}{Experiments (n = 662) show that smartphone-guided meditation reduces anxiety}
+    \begin{figure}
+        \centering
+        \includegraphics{./figures/ate.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{We study the causal effect of four weeks of meditation}
+
+    \begin{columns}
+        \column{0.6 \textwidth}
+
+        Counterfactual outcomes
+
+        \begin{table}[]
+            \begin{tabular}{lcl}
+                anxiety, no meditation & $Y_i(0)$ & $\in \R$ \\
+                anxiety, meditation    & $Y_i(1)$ & $\in \R$
+            \end{tabular}
+        \end{table}
+
+        Observed data
+
+        \begin{table}[]
+            \begin{tabular}{lcrl}
+                Treatment & meditation & $T_i$ & $\in \set{0, 1} $ \\
+                Outcome   & anxiety    & $Y_i$ & $\in \R$
+            \end{tabular}
+        \end{table}
+        \begin{align*}
+            \ate    & = \E{Y_i (1) - Y_i (0)}                       \\
+                    & = \E{Y_i \mid T_i = 1} - \E{Y_i \mid T_i = 0} \\
+            \atehat & = -3.1 \pm 1.2
+        \end{align*}
+
+        \column{0.4 \textwidth}
+        \centering
+        \begin{figure}[ht]
+            \includegraphics{figures/week4_scatter.png}
+            \centering
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Psychologists want to know \underline{why} the Healthy Minds Program reduces distress}
+
+    The meditation program is designed to alter latent cognitive factors
+
+    \begin{enumerate}
+        \item Awareness (mindful action)
+        \item Connection (social connection, reducing loneliness)
+        \item Insight (cognitive defusion)
+        \item Purpose (presence of meaning)
+    \end{enumerate}
+
+    The hope: improving these latent cognitive factors reduces anxiety
+\end{frame}
+
+\begin{frame}{Multi-stage effects can be formalized as causal mediation}
+    \begin{columns}
+        \column{0.67 \textwidth}
+        Decompose effect of $T_i$ on $Y_i$:
+
+        \vspace{4mm}
+
+        \begin{enumerate}
+            \item Effect operating along $T_i \to Y_i$ path (direct)
+                  \begin{itemize}
+                      \item i.e., guided breathing reduces anxiety
+                  \end{itemize}
+                  \vspace{2mm}
+            \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
+
+                  \begin{itemize}
+                      \item i.e., meditation program decreases loneliness, which in turn decreases anxiety
+                  \end{itemize}
+        \end{enumerate}
+
+        \begin{equation*}
+            \ate = \nde + \nie
+        \end{equation*}
+        \column{0.32 \textwidth}
+        \centering
+        \begin{figure}[ht]
+            \includegraphics[width=\textwidth]{figures/dags/mediating.png}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Natural direct and indirect effects are defined counterfactually}
+    \begin{columns}
+        \column{0.67 \textwidth}
+        \begin{table}[]
+            \begin{tabular}{lcrl}
+                Treatment   & meditation      & $T_i$          & $\in \set{0, 1} $     \\
+                Outcome     & anxiety         & $Y_i$          & $\in \R$              \\
+                Mediators   & cognitive state & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
+                Confounders & age \& sex      & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
+            \end{tabular}
+        \end{table}
+        \begin{align*}
+            \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
+            \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
+        \end{align*}
+
+        If we knew cognitive state, we could use standard tools. But cognitive state is latent!
+        \column{0.33 \textwidth}
+        \centering
+        \begin{figure}[ht]
+            \includegraphics[width=\textwidth]{figures/dags/mediating.png}
+            \centering
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Psychologists measure latent cognitive state using surveys}
+
+    For example, the NIH Toolbox loneliness survey
 
     \begin{enumerate}
         \item I feel alone and apart from others
@@ -55,8 +175,17 @@
     \end{table}
 \end{frame}
 
-\begin{frame}
-    four preregistered mediators (Five Facet Mindfulness Questionnaire mindful action subscale, NIH Toolbox Loneliness, Drexel Defusion Scale, and Meaning in Life Questionnaire presence subscale).
+\begin{frame}{The experimenters ran weekly surveys of the study participants}
+
+    \begin{itemize}
+        \item NIH Toolbox Loneliness (5 questions)
+        \item Five Facet Mindfulness Questionnaire Acting with Awareness subscale (8 questions)
+        \item Drexel Defusion Scale (10 questions)
+        \item Meaning in Life Questionnaire (10 questions)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Another of the weekly surveys: the Meaning in Life Questionnaire}
 
     \begin{enumerate}
         \item I understand my life's meaning.
@@ -71,236 +200,32 @@
         \item I am searching for meaning in my life.
     \end{enumerate}
 
-    1 Absolutely untrue
-    2 Mostly untrue
-    3 Somewhat untrue
-    4 Can't say true or false
-    5 Somewhat true
-    6 Mostly true
-    7 Absolutely true
+    \footnotesize
+    \resizebox{\linewidth}{!}{
+        \begin{tabular}{ccccccc}
+            Absolutely untrue          & Mostly untrue              & Somewhat untrue            & Can't say true or false    & Somewhat true              & Mostly true                & Absolutely true            \\
+            1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle} & 6 \faIcon[regular]{circle} & 7 \faIcon[regular]{circle}
+        \end{tabular}
+    }
 \end{frame}
 
-
-
-\begin{frame}
-    four preregistered mediators (Five Facet Mindfulness Questionnaire mindful action subscale, NIH Toolbox Loneliness, Drexel Defusion Scale, and Meaning in Life Questionnaire presence subscale).
-
-    \begin{enumerate}
-        \item When I do things, my mind wanders off and I'm easily distracted.
-        \item I don't pay attention to what I'm doing because I'm daydreaming, worrying, or otherwise distracted.
-        \item I am easily distracted.
-        \item I find it difficult to stay focused on what's happening in the present.
-        \item It seems I am 'running on automatic' without much awareness of what I'm doing.
-        \item I rush through activities without being really attentive to them.
-        \item I do jobs or tasks automatically without being aware of what I'm doing.
-        \item I find myself doing things without paying attention.
-    \end{enumerate}
-
-    1 Never or very rarely true
-    2 Rarely true
-    3 Sometimes true
-    4 Often true
-    5 Very often or always true
-\end{frame}
-
-
-
-\begin{frame}
-    four preregistered mediators (Five Facet Mindfulness Questionnaire mindful action subscale, NIH Toolbox Loneliness, Drexel Defusion Scale, and Meaning in Life Questionnaire presence subscale).
-
-    \begin{enumerate}
-        \item Feelings of anger. You become angry when someone takes your place in a long line. To what extent would you normally be able to defuse from feelings of anger?
-        \item Cravings for food. You see your favorite food and have the urge to eat it. To what extent would you normally be able to defuse from cravings for food?
-        \item Physical pain. Imagine that you bang your knee on a table leg. To what extent would you normally be able to defuse from physical pain?
-        \item Anxious thoughts. Things have not been going well at school or your job, and work just keeps piling up. To what extent would you normally be able to defuse from anxious thoughts like "I'll never get this done."?
-        \item Thoughts of self. Imagine you are having a thought such as "no one likes me." To what extent would you normally be able to defuse from negative thoughts about yourself?
-        \item Thoughts of hopelessness. You are feeling sad and stuck in a difficult situation that has no obvious end in sight. You experience thoughts such as "Things will never get any better." To what extent would you normally be able to defuse from thoughts of hopelessness?
-        \item Thoughts about motivation or ability. Imagine you are having a thought such as "I can't do this" or "I just can't get started." To what extent would you normally be able to defuse from thoughts about motivation or ability?
-        \item Thoughts about your future. Imagine you are having thoughts like, "I'll never make it" or "I have no future." To what extent would you normally be able to defuse from thoughts about your future?
-        \item Sensations of fear. You are about to give a presentation to a large group. As you sit waiting for your turn, you start to notice your heart racing, butterflies in your stomach, and your hands trembling. To what extent would you normally be able to defuse from sensations of fear?
-        \item Feelings of sadness. Imagine that you lose out on something you really wanted. You have feelings of sadness. To what extent would you normally be able to defuse from feelings of sadness?
-    \end{enumerate}
-
-    0 Not at all
-    1 A little
-    2 Somewhat
-    3 Moderately
-    4 Quite a lot
-    5 Very much
-
-
-\end{frame}
-
-
-
-
-\begin{frame}{Causal mediation}
-
-    \begin{columns}
-
-        \column{0.5 \textwidth}
-
-        \begin{table}[]
-            \begin{tabular}{lrl}
-                Treatment   & $T_i$          & $\in \set{0, 1} $     \\
-                Outcome     & $Y_i$          & $\in \R$              \\
-                Mediators   & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-                Confounders & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
-            \end{tabular}
-        \end{table}
-
-        Decompose effect of $T_i$ on $Y_i$:
-
-        \begin{enumerate}
-            \item Effect operating along $T_i \to Y_i$ path (direct)
-            \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
-        \end{enumerate}
-
-        \column{0.5 \textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics[width=.7\textwidth]{figures/dags/mediating.png}
-        \end{figure}
-        \vspace{-7mm}
-        \begin{align*}
-            \ate & = \nde + \nie                                                    \\
-            \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
-            \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
-        \end{align*}
-    \end{columns}
-\end{frame}
-
-
-\section{Social networks as mediators}
-
-\begin{frame}{Mediation in an adolescent social network}
-
-    \begin{columns}
-
-        \column{0.5 \textwidth}
-
-        \begin{figure}[ht]
-            \raggedleft
-            \includegraphics[width=1.1\textwidth]{figures/glasgow/sex.png}
-        \end{figure}
-
-        \column{0.5 \textwidth}
-
-        \begin{figure}[ht]
-            \raggedright
-            \includegraphics[width=1.1\textwidth]{figures/glasgow/tobacco.png}
-        \end{figure}
-    \end{columns}
-
+\begin{frame}{The survey responses form a bipartite network}
     \centering
-    \scriptsize Teenage Friends and Lifestyle Study (wave 1), Glasgow, 1996
-
-\end{frame}
-
-\begin{frame}{We propose a model where social groups in networks mediate causal effects}
-
-    \begin{columns}
-
-        \column{0.35 \textwidth}
-
-        \footnotesize
-
-        \begin{table}[]
-            \begin{tabular}{lcl}
-                Adjacency matrix      & $A$            & $\in \R^{n \times n}$ \\
-                Edge $i \sim j$       & $A_{ij}$       & $\in \R$              \\
-                Treatment             & $T_i$          & $\in \set{0, 1}$      \\
-                Outcome               & $Y_i$          & $\in \R$              \\
-                Confounders           & $\C_{i \cdot}$ & $\in \R^{1 \times p}$ \\
-                Friend group (latent) & $\X_{i \cdot}$ & $\in \R^{1 \times d}$
-            \end{tabular}
-        \end{table}
-
-        \column{0.65 \textwidth}
-
-        \begin{figure}[ht]
-            \centering
-            \includegraphics[width=\textwidth]{figures/dags/homophily-mediating.png}
-            \label{fig:mediating}
-        \end{figure}
-    \end{columns}
-
-    \centering
-    \scriptsize Structural causal model for network mediation in a network with two nodes $i$ and $j$
-
-
-    % \textbf{Motivating example:} friend groups mediate the effect of sex on smoking in an adolescent social network
-
-    % \begin{itemize}
-    %     \item Girls smoke than boys
-    %     \item Girls and boys in different friend groups
-    %     \item Smoking varies with friend group
-    % \end{itemize}
-
-
-\end{frame}
-
-\begin{frame}{The challenge: the friend groups $\X_{i \cdot}$ are not observed!}
-
-    Solution: estimate friend groups $\X_{i \cdot}$ using community models!
-
-    We use a semi-parametric estimator that accommodates:
-
-    \begin{itemize}
-        \item Stochastic blockmodels
-        \item Degree-corrected stochastic blockmodels
-        \item Mixed-membership stochastic blockmodels
-        \item Overlapping stochastic blockmodels
-        \item Random dot product graphs
-        \item Etc
-    \end{itemize}
-
-\end{frame}
-
-\begin{frame}{Intuition: stochastic blockmodels}
-
-    \begin{columns}
-        \column{0.45\textwidth}
-
-        \begin{figure}
-            \includegraphics[width=\textwidth]{figures/assortative.png}
-        \end{figure}
-
-        \column{0.55\textwidth}
-
-        $d$ communities or ``blocks''
-
-        $\X_{i \cdot} \in \set{0, 1}^d$ one-hot indicator of node $i$'s block
-
-        \vspace{4mm}
-
-        $\X$ is latent (i.e., unobserved)
-
-        \vspace{4mm}
-
-        $B \in [0, 1]^{d \times d}$ inter-block edge probabilities
-
-        \vspace{4mm}
-
-        Friendships depend on group memberships and $B$
-
-        $\P[\X]{A_{ij} = 1} = \X_{i \cdot} B \X_{j \cdot}^T$
-
-    \end{columns}
-
-\end{frame}
-
-\begin{frame}{Returning to the structural causal model for a moment}
-
-    \centering
-
     \begin{figure}
-        \includegraphics[scale=0.7]{figures/dags/homophily-mediating.png}
+        \includegraphics{figures/week4-responses.png}
     \end{figure}
-
 \end{frame}
 
-\begin{frame}{Don't know $\X$ but can estimate it!}
+\begin{frame}{We estimate latent cognitive state by embedding the network}
+    \centering
+    \begin{figure}
+        \includegraphics{figures/week4-responses.png}
+    \end{figure}
+\end{frame}
+
+
+
+\begin{frame}{We embed the survey response network to estimate latent cognitive factors}
 
     \begin{definition}[ASE]
 
@@ -324,6 +249,91 @@
 \end{frame}
 
 
+\begin{frame}{Multi-stage effects can be formalized as causal mediation}
+    \begin{columns}
+        \column{0.5 \textwidth}
+        \centering
+        \begin{figure}
+            \includegraphics{figures/ecv-Week 4.png}
+        \end{figure}
+        \column{0.5 \textwidth}
+        \centering
+        \begin{figure}
+            \includegraphics{figures/ecv-Week 4.png}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{TODO}
+    \begin{columns}
+        \column{0.5 \textwidth}
+        \centering
+        \begin{figure}
+            \includegraphics{figures/vhat.png}
+        \end{figure}
+        \column{0.5 \textwidth}
+        \centering
+        \begin{figure}
+            \includegraphics{figures/xhat.png}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{We found two latent dimensions in the survey data}
+
+    \begin{figure}
+        \includegraphics{figures/vhat.png}
+    \end{figure}
+    \cite{chen2021}
+    chen2021
+\end{frame}
+
+\begin{frame}{Recap so far}
+
+    \begin{itemize}
+        \item Psychologists hoped to find four latent factors corresponding to loneliness, meaning in life, etc, etc
+        \item We only found two "do you feel good", and "do you feel bad"
+        \item People basically answer all the questions exactly the same
+        \item Still curious how much the latent well-being factors account for decrease in anxiety
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{The survey responses form a bipartite network}
+    \centering
+    \begin{figure}
+        \includegraphics{figures/dags/bipartite-mediation.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Identifying assumptions}
+
+    The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
+    \begin{enumerate}
+        \item Consistency: \vspace{-3mm}
+              \begin{equation*} \begin{aligned}
+                       & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
+                       & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
+                      \vspace{-2mm}
+                  \end{aligned} \end{equation*}
+        \item Sequential ignorability:
+              \begin{equation*}
+                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
+                  ~~~\text{ and }~~~
+                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
+              \end{equation*}
+        \item Positivity:
+              \begin{equation*}
+                  \begin{aligned}
+                      \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
+                      \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
+                  \end{aligned}
+              \end{equation*}
+    \end{enumerate}
+
+\end{frame}
+
 \begin{frame}{Semi-parametric regression models for mediation}
 
     If the previous DAG is correct, under the additional assumption that:
@@ -338,20 +348,28 @@
              & = \underbrace{\thetazero}_{\R^{1 \times d}}
             + \underbrace{T_i}_{\{0, 1\}} \underbrace{\thetat}_{\R^{1 \times d}}
             + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetac}_{\R^{p \times d}}
-            + \underbrace{T_i}_{\{0, 1\}} \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetatc}_{\R^{p \times d}}.
         \end{aligned}
     \end{equation*}
     Then:
     \begin{align*}
-        \ndef & = \paren*{t - t^*} \, \betat                                                        \\
-        \nief & = \paren*{t - t^*} \, \thetat \, \betax + (t - t^*) \, \mu_c \, \Thetatc \, \betax.
+        \ndef & = \paren*{t - t^*} \, \betat            \\
+        \nief & = \paren*{t - t^*} \, \thetat \, \betax
     \end{align*}
 
 \end{frame}
 
+
+\begin{frame}{What psychologists would do if they knew the latent factors}
+
+
+\end{frame}
+
+% Visualize shift caused by intervention in latent space // how anxiety varies in that latent space
+
+
 \begin{frame}{Estimation: plug $\Xhat$ into least squares}
 
-    Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C  & T \cdot \C \end{bmatrix} \in \R^{n \times (2 p + 2)}$.
+    Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C \end{bmatrix} \in \R^{n \times (p + 2)}$.
     \begin{equation*}
         \begin{bmatrix}
             \betazerohat \\
@@ -366,8 +384,8 @@
     \end{equation*}
 
     \begin{align*}
-        \ndehat & = \paren*{t - t^*} \, \betathat                                                                                        & \text{and} \\
-        \niehat & = \paren*{t - t^*} \, \thetathat \, \betaxhat + \paren*{t - t^*} \cdot \widehat{\mu}_c \cdot \Thetatchat \, \betaxhat.
+        \ndehat & = \paren*{t - t^*} \, \betathat               & \text{and} \\
+        \niehat & = \paren*{t - t^*} \, \thetathat \, \betaxhat
     \end{align*}
 \end{frame}
 
@@ -416,31 +434,69 @@
              & \to
             \Normal{0}{1}.
         \end{align*}
-        \noindent where $\sigmahatnde$ and $\sigmahatnie$ are rather unfriendly variance estimators derived via the delta method and the previous theorem.
+        \noindent where $\sigmahatnde$ and $\sigmahatnie$ are variance estimators derived via the delta method and the previous theorem.
 
     \end{theorem}
 
 \end{frame}
 
-\begin{frame}{Application to Glasgow data}
+\begin{frame}{Regression table goes here}
 
-    % \item Estimated effects vary with the chosen dimension $d$ of the latent space
-    % \item Over-specifying $d$ is typically okay, but under-specifying $d$ leads to a failure to capture social structure in $\X$
-    % \item Once we capture enough social structure in $\X$, we see a significant indirect social effect that leads adolescent girls to smoke more
+    \texttt{anxiety $\sim$ treatment + age + sex + Xhat1 + Xhat2}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=.7\textwidth]{figures/glasgow/effects.png}
-        \caption{\footnotesize Estimated direct and indirect effects of sex on tobacco usage in the Glasgow social network, adjusted for age and church attendance. Positive values indicate a greater propensity for adolescent boys to smoke, negative effects a greater propensity for adolescent girls to smoke.}
-        \label{fig:glasgow-estimates}
-    \end{figure}
+    \texttt{Xhat $\sim$ treatment + age + sex}
+
 \end{frame}
+
+
+% \begin{frame}{We propose a model where social groups in networks mediate causal effects}
+
+%     \begin{columns}
+
+%         \column{0.35 \textwidth}
+
+%         \footnotesize
+
+%         \begin{table}[]
+%             \begin{tabular}{lcl}
+%                 Adjacency matrix      & $A$            & $\in \R^{n \times n}$ \\
+%                 Edge $i \sim j$       & $A_{ij}$       & $\in \R$              \\
+%                 Treatment             & $T_i$          & $\in \set{0, 1}$      \\
+%                 Outcome               & $Y_i$          & $\in \R$              \\
+%                 Confounders           & $\C_{i \cdot}$ & $\in \R^{1 \times p}$ \\
+%                 Friend group (latent) & $\X_{i \cdot}$ & $\in \R^{1 \times d}$
+%             \end{tabular}
+%         \end{table}
+
+%         \column{0.65 \textwidth}
+
+%         \begin{figure}[ht]
+%             \centering
+%             \includegraphics[width=\textwidth]{figures/dags/homophily-mediating.png}
+%             \label{fig:mediating}
+%         \end{figure}
+%     \end{columns}
+
+%     \centering
+%     \scriptsize Structural causal model for network mediation in a network with two nodes $i$ and $j$
+
+
+%     % \textbf{Motivating example:} friend groups mediate the effect of sex on smoking in an adolescent social network
+
+%     % \begin{itemize}
+%     %     \item Girls smoke than boys
+%     %     \item Girls and boys in different friend groups
+%     %     \item Smoking varies with friend group
+%     % \end{itemize}
+
+
+% \end{frame}
 
 \begin{frame}{Thank you! Questions?}
 
     Read the manuscript at \url{https://arxiv.org/abs/2212.12041}
 
-    R package \href{https://github.com/alexpghayes/netmediate}{netmediate}
+    R package \href{https://github.com/alexpghayes/latentnetmediate}{latentnetmediate}
 
     \textbf{Stay in touch}
 
@@ -456,38 +512,38 @@
 
 \appendix
 
-\begin{frame}{Disambiguation: contagion ($Y_j \to Y_i$) is not allowed}
+% \begin{frame}{Disambiguation: contagion ($Y_j \to Y_i$) is not allowed}
 
-    \centering
+%     \centering
 
-    \begin{figure}
-        \includegraphics[scale=0.7]{figures/dags/homophily-mediating-contagion-peer.png}
-        \label{fig:contagion}
-    \end{figure}
+%     \begin{figure}
+%         \includegraphics[scale=0.7]{figures/dags/homophily-mediating-contagion-peer.png}
+%         \label{fig:contagion}
+%     \end{figure}
 
-\end{frame}
+% \end{frame}
 
-\begin{frame}{Disambiguation: interference ($T_j \to Y_i$) is not allowed}
+% \begin{frame}{Disambiguation: interference ($T_j \to Y_i$) is not allowed}
 
-    \centering
+%     \centering
 
-    \begin{figure}
-        \includegraphics[scale=0.7]{figures/dags/homophily-mediating-interference-peer.png}
-        \label{fig:interference}
-    \end{figure}
+%     \begin{figure}
+%         \includegraphics[scale=0.7]{figures/dags/homophily-mediating-interference-peer.png}
+%         \label{fig:interference}
+%     \end{figure}
 
-\end{frame}
+% \end{frame}
 
-\begin{frame}{More on interference and contagion}
+% \begin{frame}{More on interference and contagion}
 
-    Interference and contagion effects are allowed \emph{so long as they happen in the latent space}. Suppose
-    \begin{align*}
-        \E[\W_{i \cdot}, \X_{i \cdot}]{Y_i}
-        = \W_{i \cdot} \betaw + \X_{i \cdot} \beta'_\text{x} + \delta_\text{y} \sum_{j} \X_{i \cdot}^T \X_{j \cdot} Y_j
-    \end{align*}
-    This latent space contagion model is a special parametric case of the regression outcome model (take $\betax = \beta'_\text{x} + \X^T Y \delta_\text{y}$).
+%     Interference and contagion effects are allowed \emph{so long as they happen in the latent space}. Suppose
+%     \begin{align*}
+%         \E[\W_{i \cdot}, \X_{i \cdot}]{Y_i}
+%         = \W_{i \cdot} \betaw + \X_{i \cdot} \beta'_\text{x} + \delta_\text{y} \sum_{j} \X_{i \cdot}^T \X_{j \cdot} Y_j
+%     \end{align*}
+%     This latent space contagion model is a special parametric case of the regression outcome model (take $\betax = \beta'_\text{x} + \X^T Y \delta_\text{y}$).
 
-\end{frame}
+% \end{frame}
 
 \begin{frame}{Semi-parametric network model}
 
@@ -511,83 +567,110 @@
 
 \end{frame}
 
-\begin{frame}{Identifying assumptions}
 
-    \begin{definition}
-        The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
-        \begin{enumerate}
-            \item Consistency: \vspace{-3mm}
-                  \begin{equation*} \begin{aligned}
-                           & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
-                           & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
-                          \vspace{-2mm}
-                      \end{aligned} \end{equation*}
-            \item Sequential ignorability:
-                  \begin{equation*}
-                      \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
-                      ~~~\text{ and }~~~
-                      \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
-                  \end{equation*}
-            \item Positivity:
-                  \begin{equation*}
-                      \begin{aligned}
-                          \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
-                          \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
-                      \end{aligned}
-                  \end{equation*}
-        \end{enumerate}
-    \end{definition}
+% % \begin{frame}{Interventions on a network}
+
+% %     \begin{figure}
+% %         \includegraphics[width=\textwidth]{figures/intervention.pdf}
+% %         \caption{Canonical intervention when $\C$ is highly informative.}
+% %         \label{fig:intervention}
+% %     \end{figure}
+% % \end{frame}
+
+% % \begin{frame}{Interventions on a network}
+
+% %     \begin{align*}
+% %         \underbrace{\E[T_i, \C_{i \cdot}]{\Z_{i \cdot}}}_{\R^{1 \times d}}
+% %          & = \underbrace{\thetazero}_{\R^{1 \times d}}
+% %         + \underbrace{T_i}_{\{0, 1\}} \underbrace{\thetat}_{\R^{1 \times d}}
+% %         + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetac}_{\R^{p \times d}}
+% %         + \underbrace{T_i}_{\{0, 1\}} \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetatc}_{\R^{p \times d}}.
+% %     \end{align*}
+
+% %     In Figure \ref{fig:intervention}, $\C$ are latent parameters for a DC-SBM and $\thetazero = \vec 0, \thetat = \vec 0, \Thetac = I_k$ and
+
+% %     \begin{align*}
+% %         \Thetatc =
+% %         \begin{bmatrix}
+% %             -1 & 2 & 0  & 0 & 0 \\
+% %             0  & 0 & 0  & 0 & 0 \\
+% %             0  & 1 & -1 & 0 & 0 \\
+% %             0  & 0 & 0  & 0 & 0 \\
+% %             0  & 0 & 0  & 0 & 0 \\
+% %         \end{bmatrix}
+% %     \end{align*}
+% % \end{frame}
+
+% \begin{frame}{Interventions allowed}
+
+%     Provided that controls $\C_{i \cdot}$ are sufficiently informative about group membership $\X_{i \cdot}$, treatment $T_i$ is allowed to cause:
+
+%     \begin{itemize}
+%         \item Changes in popularity within a group
+%         \item Movement to a new friend group
+%         \item Becoming a member of a new friend group while remaining in current friend group
+%         \item Friendships becoming more or less likely between distinct friend groups
+%         \item Combinations of the above
+%     \end{itemize}
+
+%     See Appendix of manuscript for details.
+
+% \end{frame}
+
+\begin{frame}{mindful action subscale}
+
+    \begin{enumerate}
+        \item When I do things, my mind wanders off and I'm easily distracted.
+        \item I don't pay attention to what I'm doing because I'm daydreaming, worrying, or otherwise distracted.
+        \item I am easily distracted.
+        \item I find it difficult to stay focused on what's happening in the present.
+        \item It seems I am 'running on automatic' without much awareness of what I'm doing.
+        \item I rush through activities without being really attentive to them.
+        \item I do jobs or tasks automatically without being aware of what I'm doing.
+        \item I find myself doing things without paying attention.
+    \end{enumerate}
+
+    \resizebox{\linewidth}{!}{
+        \begin{tabular}{ccccc}
+            Never or very rarely true  & Rarely true                & Sometimes true             & Often true                 & Very often or always true  \\
+            1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle}
+        \end{tabular}
+    }
+\end{frame}
+
+
+
+\begin{frame}{Drexel Defusion Scale}
+    \begin{enumerate}
+        \item Feelings of anger. You become angry when someone takes your place in a long line. To what extent would you normally be able to defuse from feelings of anger?
+        \item Cravings for food. You see your favorite food and have the urge to eat it. To what extent would you normally be able to defuse from cravings for food?
+        \item Physical pain. Imagine that you bang your knee on a table leg. To what extent would you normally be able to defuse from physical pain?
+        \item Anxious thoughts. Things have not been going well at school or your job, and work just keeps piling up. To what extent would you normally be able to defuse from anxious thoughts like "I'll never get this done."?
+        \item Thoughts of self. Imagine you are having a thought such as "no one likes me." To what extent would you normally be able to defuse from negative thoughts about yourself?
+        \item Thoughts of hopelessness. You are feeling sad and stuck in a difficult situation that has no obvious end in sight. You experience thoughts such as "Things will never get any better." To what extent would you normally be able to defuse from thoughts of hopelessness?
+        \item Thoughts about motivation or ability. Imagine you are having a thought such as "I can't do this" or "I just can't get started." To what extent would you normally be able to defuse from thoughts about motivation or ability?
+        \item Thoughts about your future. Imagine you are having thoughts like, "I'll never make it" or "I have no future." To what extent would you normally be able to defuse from thoughts about your future?
+        \item Sensations of fear. You are about to give a presentation to a large group. As you sit waiting for your turn, you start to notice your heart racing, butterflies in your stomach, and your hands trembling. To what extent would you normally be able to defuse from sensations of fear?
+        \item Feelings of sadness. Imagine that you lose out on something you really wanted. You have feelings of sadness. To what extent would you normally be able to defuse from feelings of sadness?
+    \end{enumerate}
+
+    \resizebox{\linewidth}{!}{
+        \begin{tabular}{cccccc}
+            Not at all                 & A little                   & Somewhat                   & Moderately                 & Quite a lot                & Very much                  \\
+            0 \faIcon[regular]{circle} & 1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle}
+        \end{tabular}
+    }
 
 \end{frame}
 
-% \begin{frame}{Interventions on a network}
 
-%     \begin{figure}
-%         \includegraphics[width=\textwidth]{figures/intervention.pdf}
-%         \caption{Canonical intervention when $\C$ is highly informative.}
-%         \label{fig:intervention}
-%     \end{figure}
-% \end{frame}
 
-% \begin{frame}{Interventions on a network}
-
-%     \begin{align*}
-%         \underbrace{\E[T_i, \C_{i \cdot}]{\Z_{i \cdot}}}_{\R^{1 \times d}}
-%          & = \underbrace{\thetazero}_{\R^{1 \times d}}
-%         + \underbrace{T_i}_{\{0, 1\}} \underbrace{\thetat}_{\R^{1 \times d}}
-%         + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetac}_{\R^{p \times d}}
-%         + \underbrace{T_i}_{\{0, 1\}} \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetatc}_{\R^{p \times d}}.
-%     \end{align*}
-
-%     In Figure \ref{fig:intervention}, $\C$ are latent parameters for a DC-SBM and $\thetazero = \vec 0, \thetat = \vec 0, \Thetac = I_k$ and
-
-%     \begin{align*}
-%         \Thetatc =
-%         \begin{bmatrix}
-%             -1 & 2 & 0  & 0 & 0 \\
-%             0  & 0 & 0  & 0 & 0 \\
-%             0  & 1 & -1 & 0 & 0 \\
-%             0  & 0 & 0  & 0 & 0 \\
-%             0  & 0 & 0  & 0 & 0 \\
-%         \end{bmatrix}
-%     \end{align*}
-% \end{frame}
-
-\begin{frame}{Interventions allowed}
-
-    Provided that controls $\C_{i \cdot}$ are sufficiently informative about group membership $\X_{i \cdot}$, treatment $T_i$ is allowed to cause:
-
-    \begin{itemize}
-        \item Changes in popularity within a group
-        \item Movement to a new friend group
-        \item Becoming a member of a new friend group while remaining in current friend group
-        \item Friendships becoming more or less likely between distinct friend groups
-        \item Combinations of the above
-    \end{itemize}
-
-    See Appendix of manuscript for details.
-
+\begin{frame}
+    \cite{hirshberg2024}
 \end{frame}
+
+\bibliographystyle{chicago}
+\bibliography{2024-06-17-netsci}
 
 
 \end{document}
