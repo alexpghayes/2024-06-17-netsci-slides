@@ -163,8 +163,8 @@ make_bipartite_mediation_figure <- function() {
 
   ggsave(
     path,
-    height = 3,
-    width = 5.5,
+    height = 3.5,
+    width = 4 * 16/9,
     dpi = 300
   )
 

@@ -25,8 +25,8 @@
 
 \title{Estimating network-mediated causal effects via spectral embeddings}
 
-\date{NetSci 2014}
-\author{Alex Hayes, joint with Mark Fredrickson and Keith Levin }
+\date{2024-06-17}
+\author{Alex Hayes}
 \institute{University of Wisconsin-Madison}
 
 
@@ -72,7 +72,7 @@
         \begin{align*}
             \ate    & = \E{Y_i (1) - Y_i (0)}                       \\
                     & = \E{Y_i \mid T_i = 1} - \E{Y_i \mid T_i = 0} \\
-            \atehat & = -3.1 \pm 1.2
+            \atehat & = -2.7 \pm 1.3
         \end{align*}
 
         \column{0.4 \textwidth}
@@ -185,7 +185,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Another of the weekly surveys: the Meaning in Life Questionnaire}
+\begin{frame}{Another survey: the Meaning in Life Questionnaire}
 
     \begin{enumerate}
         \item I understand my life's meaning.
@@ -216,76 +216,64 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{We estimate latent cognitive state by embedding the network}
-    \centering
-    \begin{figure}
-        \includegraphics{figures/week4-responses.png}
-    \end{figure}
+\begin{frame}{We model survey responses using a factor model}
+
+    Suppose $A \in \R^{n \times m}$ is the matrix of survey responses. Then
+
+    \begin{equation*}
+        \E[X, Z]{A} = X Z^T
+    \end{equation*}
+
+    \begin{table}[]
+        \begin{tabular}{lcl}
+            Participant embeddings & $X$ & $\in \R^{n \times d}$ \\
+            Question embeddings    & $Z$ & $\in \R^{m \times d}$
+        \end{tabular}
+    \end{table}
+
 \end{frame}
 
-
-
-\begin{frame}{We embed the survey response network to estimate latent cognitive factors}
+\begin{frame}{We estimate latent cognitive state by embedding the network}
 
     \begin{definition}[ASE]
 
-        Given a network $A$, the $d$-dimensional \emph{adjacency spectral embedding} of $A$ is
+        Given a network $A$, the $d$-dimensional \emph{adjacency spectral embeddings} of $A$ is
         \begin{align*}
-            \Xhat = \Uhat \Shat^{1/2}
+            \Xhat = \Uhat \Shat^{1/2} ~\text{ and } \widehat{Z} = \Vhat \Shat^{1/2}
         \end{align*}
-        \noindent where $\Uhat \Shat \Uhat^T$ is the rank-$d$ truncated singular value decomposition of $A$.
+        \noindent where $\Uhat \Shat \Vhat^T$ is the rank-$d$ truncated singular value decomposition of $A$.
     \end{definition}
 
     \begin{lemma}
-        Under a suitable network model, there is a $d \times d$ orthogonal matrix $Q$ such that
+        Under a suitable low-rank model, there are $d \times d$ orthogonal matrices $Q_1, Q_2$ such that
+        % TODO: is it the same Q for both the left and right co-factors
         \begin{equation*}
-            \max_{i \in [n]} \, \norm*{\Xhat_{i \cdot} - \X_{i \cdot} Q} = \op{1}.
+            \max_{i \in [n]} \, \norm*{\Xhat_{i \cdot} - \X_{i \cdot} Q_1} = \op{1}
+            ~\text{ and }~
+            \max_{i \in [n]} \, \norm*{\Vhat_{i \cdot} - V_{i \cdot} Q_2} = \op{1}.
         \end{equation*}
     \end{lemma}
+\end{frame}
 
+
+\begin{frame}{We must estimate the number of latent factors $d$}
     \centering
-
-    \textbf{Note that we must correctly specify $d$}
+    \begin{figure}
+        \includegraphics{figures/rank-determination.png}
+    \end{figure}
 \end{frame}
 
-
-\begin{frame}{Multi-stage effects can be formalized as causal mediation}
-    \begin{columns}
-        \column{0.5 \textwidth}
-        \centering
-        \begin{figure}
-            \includegraphics{figures/ecv-Week 4.png}
-        \end{figure}
-        \column{0.5 \textwidth}
-        \centering
-        \begin{figure}
-            \includegraphics{figures/ecv-Week 4.png}
-        \end{figure}
-    \end{columns}
+\begin{frame}{Participants embed into an inocuous latent space}
+    \centering
+    \begin{figure}
+        \includegraphics[width=\textwidth]{figures/xhat.png}
+    \end{figure}
 \end{frame}
 
-\begin{frame}{TODO}
-    \begin{columns}
-        \column{0.5 \textwidth}
-        \centering
-        \begin{figure}
-            \includegraphics{figures/vhat.png}
-        \end{figure}
-        \column{0.5 \textwidth}
-        \centering
-        \begin{figure}
-            \includegraphics{figures/xhat.png}
-        \end{figure}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{We found two latent dimensions in the survey data}
-
+\begin{frame}{The survey questions are largely redundant}
     \begin{figure}
         \includegraphics{figures/vhat.png}
     \end{figure}
-    \cite{chen2021}
-    chen2021
 \end{frame}
 
 \begin{frame}{Recap so far}
@@ -299,15 +287,15 @@
 
 \end{frame}
 
-\begin{frame}{The survey responses form a bipartite network}
+\begin{frame}{We use survey responses to estimate latent participant embeedings}
     \centering
     \begin{figure}
-        \includegraphics{figures/dags/bipartite-mediation.png}
+        \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
     \end{figure}
 \end{frame}
 
 
-\begin{frame}{Identifying assumptions}
+\begin{frame}{The identifying assumptions can be expressed counterfactually}
 
     The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
     \begin{enumerate}
@@ -334,9 +322,9 @@
 
 \end{frame}
 
-\begin{frame}{Semi-parametric regression models for mediation}
+\begin{frame}{Under semi-parametric assumptions, causal effects are regression coefficients}
 
-    If the previous DAG is correct, under the additional assumption that:
+    If the non-parametric identification conditions hold and also
     \begin{equation*}
         \begin{aligned}
             \underbrace{\E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}}_{\R}
@@ -350,7 +338,7 @@
             + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetac}_{\R^{p \times d}}
         \end{aligned}
     \end{equation*}
-    Then:
+    Then
     \begin{align*}
         \ndef & = \paren*{t - t^*} \, \betat            \\
         \nief & = \paren*{t - t^*} \, \thetat \, \betax
@@ -358,17 +346,7 @@
 
 \end{frame}
 
-
-\begin{frame}{What psychologists would do if they knew the latent factors}
-
-
-\end{frame}
-
-% Visualize shift caused by intervention in latent space // how anxiety varies in that latent space
-
-
-\begin{frame}{Estimation: plug $\Xhat$ into least squares}
-
+\begin{frame}{We using estimated $\Xhat$ in place of unobserved $\X$ in regression estimators}
     Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C \end{bmatrix} \in \R^{n \times (p + 2)}$.
     \begin{equation*}
         \begin{bmatrix}
@@ -384,14 +362,14 @@
     \end{equation*}
 
     \begin{align*}
-        \ndehat & = \paren*{t - t^*} \, \betathat               & \text{and} \\
+        \ndehat & = \paren*{t - t^*} \, \betathat               \\
         \niehat & = \paren*{t - t^*} \, \thetathat \, \betaxhat
     \end{align*}
 \end{frame}
 
-\begin{frame}{Main result}
+\begin{frame}{Regression coefficients are asymptotically normal}
 
-    \begin{theorem}[Regression coefficients are asymptotically normal]
+    \begin{theorem}
 
         \vspace{2mm}
 
@@ -419,10 +397,9 @@
     \end{theorem}
 \end{frame}
 
-\begin{frame}{Corollary}
+\begin{frame}{Causal estimators are asymptotically normal}
 
-    \begin{theorem}[Causal estimators are asymptotically normal]
-
+    \begin{theorem}
         \vspace{2mm}
 
         Under the same statistical assumptions as before, plus mediating homophily,
@@ -440,13 +417,64 @@
 
 \end{frame}
 
-\begin{frame}{Regression table goes here}
-
-    \texttt{anxiety $\sim$ treatment + age + sex + Xhat1 + Xhat2}
-
-    \texttt{Xhat $\sim$ treatment + age + sex}
-
+\begin{frame}{Latent factors increase anxiety, meditation decreases anxiety}
+    \centering
+    \begin{figure}
+        \includegraphics[width=\textwidth]{figures/outcome-coefficients.png}
+    \end{figure}
 \end{frame}
+
+\begin{frame}{Meditation causes a small but significant shift in latent space}
+    \centering
+    \begin{figure}
+        \includegraphics{figures/latent-intervention.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{We estimate that most of the effect is along the direct pathway}
+
+    \begin{columns}
+        \column{0.35\textwidth}
+        \begin{align*}
+            \atehat & = -2.7 \pm 1.3 \\
+            \ndehat & = -1.8 \pm 1.1 \\
+            \niehat & = -1 \pm 0.7
+        \end{align*}
+
+        \column{0.65\textwidth}
+        \centering
+        \begin{figure}[ht]
+            \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Takeaways}
+
+    \begin{itemize}
+        \item We developed a method to decompose causal effects into effects operating along direct and indirect pathways in a low-rank latent space
+        \item "Latent causal effects" sounds scary, but can often just look at your data to interpret them
+    \end{itemize}
+
+    \begin{columns}
+        \column{0.3 \textwidth}
+        \begin{align*}
+            \ate    & = \nde + \nie  \\
+            \atehat & = -2.7 \pm 1.3 \\
+            \ndehat & = -1.8 \pm 1.1 \\
+            \niehat & = -1 \pm 0.7
+        \end{align*}
+        \column{0.7 \textwidth}
+        \centering
+        \begin{figure}[ht]
+            \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+% Visualize shift caused by intervention in latent space // how anxiety varies in that latent space
+
 
 
 % \begin{frame}{We propose a model where social groups in networks mediate causal effects}
@@ -663,14 +691,20 @@
 
 \end{frame}
 
+\begin{frame}{Network model}
 
 
-\begin{frame}
-    \cite{hirshberg2024}
+    \begin{definition}
+        Let $A \in \R^{n \times n}$ be a random symmetric matrix, such as the adjacency matrix of an undirected graph. Let $\Apop = \E[\X]{A} = \X \X^T$ be the expectation of $A$ conditional on $\X \in \R^{n \times d}$, which has independent and identically distributed rows $\X_{1 \cdot}, \dots, \X_{n \cdot}$. That is, $\Apop$ has $\rank \paren*{\Apop} = d$ and is positive semi-definite with eigenvalues $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_d > 0 = \lambda_{d+1} = \cdots = \lambda_n$. Conditional on $\X$, the upper-triangular elements of $A - \Apop$ are independent $(\nu_n, b_n)$-sub-gamma random variables.
+    \end{definition}
+
+    \begin{remark}
+        $\Apop = \X \X^T = (\X Q) (\X Q)^T$ for any $d \times d$ orthogonal matrix $Q$, the latent positions $\X$ are only identifiable up to an orthogonal transformation.
+    \end{remark}
+
 \end{frame}
 
-\bibliographystyle{chicago}
-\bibliography{2024-06-17-netsci}
-
+% \bibliographystyle{chicago}
+% \bibliography{2024-06-17-netsci}
 
 \end{document}

@@ -11,6 +11,7 @@
 
 \newcommand{\Shat}{\widehat{S}}
 \newcommand{\Uhat}{\widehat{U}}
+\newcommand{\Vhat}{\widehat{V}}
 \newcommand{\Spop}{S}
 \newcommand{\Upop}{U}
 \newcommand{\Vpop}{V}
@@ -288,12 +289,6 @@
    \ifthenelse{ \equal{#1}{} }
    {\ensuremath{\widehat{\mathbb{E}} \brac*{#2}}}
    {\ensuremath{\widehat{\mathbb{E}} \brac*{#2 \, \middle \vert \, #1}}}
-}
-
-\newcommand{\Vhat}[2][]{%
-   \ifthenelse{ \equal{#1}{} }
-   {\ensuremath{\widehat{\mathbb{V}} \brac*{#2}}}
-   {\ensuremath{\widehat{\mathbb{V}} \brac*{#2 \, \middle \vert \, #1}}}
 }
 
 \newcommand \Cov [2] {\mathbf{Cov} \paren*{#1, #2}}

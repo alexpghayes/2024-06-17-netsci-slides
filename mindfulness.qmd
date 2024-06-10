@@ -437,7 +437,12 @@ library(tidygraph)
 
 cross_section_to_tbl_graph <- function(df) {
   A <- df |> 
-    select(-id, -since_baseline, -time, -condition, -contains("promis")) |> 
+    select(
+      contains("nih_lonliness"),
+      contains("mlq_10"),
+      contains("ffmq_8"),
+      contains("dds_10")
+    ) |> 
     na.omit() |> 
     as.matrix() |> 
     as("sparseMatrix")
@@ -445,13 +450,18 @@ cross_section_to_tbl_graph <- function(df) {
   rownames(A) <- df$id
   
   node_data <- df |> 
-    select(id, since_baseline, time, condition, contains("promis")) |> 
+    select(
+      -contains("nih_lonliness"),
+      -contains("mlq_10"),
+      -contains("ffmq_8"),
+      -contains("dds_10")
+    ) |>
     mutate(
       name = as.character(id)
     ) |> 
     select(-id)
   
-  igraph::graph_from_incidence_matrix(A, weighted = TRUE) |> 
+  igraph::graph_from_biadjacency_matrix(A, weighted = TRUE) |> 
     as_tbl_graph() |> 
     left_join(
       node_data, by = "name"
