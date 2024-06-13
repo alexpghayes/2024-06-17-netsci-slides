@@ -3,6 +3,7 @@
 \usepackage{hayesmacros}
 \usepackage{appendixnumberbeamer}
 \usepackage{subcaption}
+\usepackage{caption}
 
 \usetheme[numbering=fraction, block=fill]{metropolis}
 \setsansfont{Fira Sans}  % be sure to compile with XeLaTeX
@@ -23,7 +24,12 @@
 
 \hypersetup{colorlinks,citecolor=cyan, urlcolor=cyan, linkcolor=black}
 
-\title{Estimating network-mediated causal effects via spectral embeddings}
+\title{Linear regression for causal inference on social networks via network embeddings}
+
+% Principle components network regression for causal inference with network embeddings
+% Causal Network Influence with Latent Homophily and Measurement Error: An Application to Therapeutic Community
+% Linear regression and its inference on noisy network-linked data
+% Linear regression for causal inference on social networks via network embeddings
 
 \date{2024-06-17}
 \author{Alex Hayes}
@@ -34,11 +40,304 @@
 
 \maketitle
 
-{
-    \usebackgroundtemplate{\includegraphics[width=\paperwidth, height=\paperheight]{./figures/hm-app.png}}
-    \begin{frame}
-    \end{frame}
-}
+\begin{frame}{\citealt{christakis2007} catalyzed methodology for social networks}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{./figures/christakis2.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{\citealt{shalizi2011} argued the issue was failure to account for homophily}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figures/shalizi20112.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{There is now an explosion of approaches that account for homophily}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./figures/mcfowland2.png}
+    \end{figure}
+\end{frame}
+
+% \begin{frame}[standout]
+%     To do inference on social networks, especially causal inference, we must account for homophily
+% \end{frame}
+
+\begin{frame}{Homophily is the tendency for behavior to vary with social group}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{./figures/assortative.png}
+                \footnotesize
+                \caption*{Nodes colored by social group}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \vspace{4mm} \\
+            \begin{table}[]
+                \begin{tabular}{llcl}
+                    Nodes           & (people)       & $i$           & $\in \set{1, \dots, n}$ \\
+                    Edge $i \sim j$ & (friends?)     & $A_{ij}$      & $\in \{0, 1\}$          \\
+                                    &                &               &                         \\
+                    Outcome         &                & $Y_i$         & $\in \R$                \\
+                    Treatment       &                & $T_i$         & $\in \R$                \\
+                                    &                &               &                         \\
+                    Latent position & (social group) & $X_{i \cdot}$ & $\in \R^d$              \\
+                \end{tabular}
+            \end{table}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Stochastic blockmodels are the canonical model for social groups}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{./figures/assortative.png}
+                \footnotesize
+                \caption*{Nodes colored by social group}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            $\X_{i \cdot} \in \set{0, 1}^d$ one-hot indicator of social group \\
+            \vspace{4mm}
+            $B \in [0, 1]^{d \times d}$ between-group friend probabilities \\
+            \vspace{4mm}
+            Friendships depend on social group and $B$ \\
+            \vspace{4mm}
+            $\P[\X]{A_{ij} = 1} = \X_{i \cdot} B \X_{j \cdot}^T$ \\
+            \vspace{4mm}
+            \underline{Social groups $\X$ are latent (i.e., unobserved)} \\
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{There are many extensions to the stochastic blockmodel}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{./figures/assortative.png}
+                \footnotesize
+                \caption*{Nodes colored by social group}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{itemize}
+                \item Degree-correction
+                \item Mixed-membership social groups
+                \item Overlapping social groups
+                \item Group-specific popularity parameters
+            \end{itemize}
+            \vspace{4mm}
+            \begin{definition}[Random dot product graph]
+                $A$ symmetric, weighted adjacency matrix \\
+                $A = \X \X^T + E$ \\
+                $\X_{1 \cdot}, \dots, \X_{n \cdot} \in \R^{1 \times d}$ i.i.d. latent positions \\
+                $E$ independent sub-gamma noise
+            \end{definition}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{A natural approach to model homophily is to include $\X$ in regression models}
+    \begin{equation*}
+        \begin{aligned}
+            % \underbrace{\E[\X_{i \cdot}, \X_{j \cdot}]{A_{ij}}}_{\R^{n \times n}}
+            %  & = \X_{i \cdot} \X_{j \cdot}^T
+            %  & \text{network}                                                       \\
+            \underbrace{\E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}}_{\R}
+             & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax
+             & \text{outcome}                                                       \\
+            \underbrace{\E[T_i, \C_{i \cdot}]{\X_{i \cdot}}}_{\R^{1 \times d}}
+             & = \thetazero + T_i \thetat + \C_{i \cdot} \Thetac
+             & \text{latent positions}
+        \end{aligned}
+    \end{equation*}
+    \begin{center}
+        $\betax$ is ``the effect of belonging to a particular social group'' \\
+    \end{center}
+    \footnotesize
+    \begin{table}[]
+        \begin{tabular}{lcl}
+            Edge $i \sim j$ & $A_{ij}$       & $\in \R$              \\
+            Latent position & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
+            Treatment       & $T_i$          & $\in \set{0, 1}$      \\
+            Outcome         & $Y_i$          & $\in \R$              \\
+            Confounders     & $\C_{i \cdot}$ & $\in \R^{1 \times p}$ \\
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Latent positions $X$ can be estimated via principle components analysis}
+    \begin{definition}[ASE]
+        Given a network $A$, the $d$-dimensional \emph{adjacency spectral embedding} of $A$ is
+        \begin{align*}
+            \Xhat = \Uhat \Shat^{1/2}
+        \end{align*}
+        \noindent where $\Uhat \Shat \Uhat^T$ is the rank-$d$ truncated singular value decomposition of $A$.
+    \end{definition}
+    \begin{lemma}
+        Under a suitable network model, there is a $d \times d$ orthogonal matrix $Q$ such that
+        \begin{equation*}
+            \max_{i \in [n]} \, \norm*{\Xhat_{i \cdot} - \X_{i \cdot} Q} = \op{1}.
+        \end{equation*}
+    \end{lemma}
+\end{frame}
+
+\begin{frame}{Estimated latent positions can plug directly into ordinary least squares}
+    Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C \end{bmatrix} \in \R^{n \times (p + 2)}$.
+    \begin{equation*}
+        \begin{bmatrix}
+            \betazerohat \\
+            \betathat    \\
+            \betachat    \\
+            \betaxhat
+        \end{bmatrix}
+        = \paren*{\Dhat^T \Dhat}^{-1} \Dhat^T Y
+        \quad \text{and} \quad
+        \Thetahat
+        = \paren*{\Wfull^T \Wfull}^{-1} \Wfull^T \Xhat.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}{Ordinary least squares estimates are asymptotically normal}
+    \begin{theorem}[]
+        Under a suitably well-behaved network model and some moments conditions on regression errors, there is an unknown orthogonal matrix $Q$ such that
+        \begin{equation*}
+            \begin{aligned}
+                \sqrt{ n } \,
+                 & \Sigmahatbeta^{-1/2}
+                \begin{pmatrix}
+                    \betawhat - \betaw \\
+                    Q \, \betaxhat - \betax
+                \end{pmatrix}
+                \to
+                \Normal{0}{I_d}, and     \\
+                \sqrt{ n } \,
+                 & \Sigmahattheta^{-1/2}
+                \begin{pmatrix}
+                    \vecc \paren*{\Thetahat \, Q^T} - \Thetavec
+                \end{pmatrix}
+                \to
+                \Normal{0}{I_{p d}}.
+            \end{aligned}
+        \end{equation*}
+        \noindent where $\Sigmahattheta^{-1/2}$ and $\Sigmahatbeta^{-1/2}$ are the typical heteroscedastic robust covariance estimators, with $\Xhat$ plugged in for $\X$.
+    \end{theorem}
+
+    \centering
+    Note: must correctly specify dimension of latent positions $d$
+\end{frame}
+
+\begin{frame}{Our results are substantially more general than similar work}
+
+    \begin{itemize}
+        \item Network can be weighted, rather than binary
+        \item No parametric assumptions on edge noise
+        \item No parametric assumptions on regression errors
+        \item Regression errors can be heteroscedastic
+        \item Can model latent positions as outcomes
+    \end{itemize}
+
+    Principle components + ordinary least squares is a very general, distributionally agnostic tool for network regression \\
+    \vspace{2mm}
+    \underline{Folklore}: similar results hold for asymmetric $A$, rectangular $A$, bipartite $A$, graph Laplacian embeddings rather than adjacency matrix embeddings, general regression $M$-estimators other than ordinary least squares
+\end{frame}
+
+\begin{frame}{Peer effects}
+    \begin{itemize}
+        \item Identifying peer effects in these models is very nuanced
+              \begin{itemize}
+                  \item Not one but two forthcoming manuscripts about this
+              \end{itemize}
+        \item When peer effects are identified, ordinary least squares sometimes works
+        \item When peer effects are unidentified, typically due to aliasing with $\betax$ or $\betazero$
+              \begin{itemize}
+                  \item Aliasing might occur only in the asymptotic limit
+              \end{itemize}
+    \end{itemize}
+    \begin{equation*}
+        \begin{aligned}
+            \E[T, \C_{i \cdot}, \X_{i \cdot}, Y_{-i}, A]{Y_i}
+            = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax +
+            \underbrace{\beta_\text{gt} \sum_{j \neq i} \frac{A_{ij} T_j}{\sum_i A_{ij}}}_\text{interference} +
+            \underbrace{\beta_\text{gy} \sum_{j \neq i} \frac{A_{ij} Y_j}{\sum_i A_{ij}}}_\text{``contagion''}
+        \end{aligned}
+    \end{equation*}
+    \vspace{2mm}
+    Lots of research attention focused on using this kind of model for causal inference
+\end{frame}
+
+\begin{frame}{People typically use embeddings to fairly blindly control for latent confounding}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./figures/dags/confounding-homophily.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{What happens if treatment effects latent position rather than vice versa?}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./figures/dags/homophily-mediating.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Causal mediation}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{table}[]
+                \begin{tabular}{lrl}
+                    Treatment   & $T_i$          & $\in \set{0, 1} $     \\
+                    Outcome     & $Y_i$          & $\in \R$              \\
+                    Mediators   & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
+                    Confounders & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
+                \end{tabular}
+            \end{table}
+            Decompose effect of $T_i$ on $Y_i$:
+            \begin{enumerate}
+                \item Effect operating along $T_i \to Y_i$ path (direct)
+                \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[width=.7\textwidth]{figures/dags/mediating.png}
+            \end{figure}
+            \vspace{-7mm}
+            \begin{align*}
+                \ate & = \nde + \nie                                                    \\
+                \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
+                \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
+            \end{align*}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    When latent positions are confounders:
+    \begin{equation*}
+        \begin{aligned}                                                    \\
+            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{average} \\ \text{treatment} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \betax
+        \end{aligned}
+    \end{equation*}
+
+    When latent positions are mediators:
+    \begin{equation*}
+        \begin{aligned}                                                    \\
+            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{natural}     \\ \text{direct} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \underbrace{\betax}_{\substack{\text{effect of} \\ \text{$X$ on $Y$ (?)}}}  \\
+            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
+             & = \thetazero + T_i \underbrace{\thetat}_{\substack{\text{effect of} \\ \text{$T$ on $X$}}}  + \C_{i \cdot} \Thetac
+        \end{aligned}
+    \end{equation*}
+\end{frame}
 
 \begin{frame}{Experiments (n = 662) show that smartphone-guided meditation reduces anxiety}
     \begin{figure}
@@ -50,37 +349,38 @@
 \begin{frame}{We study the causal effect of four weeks of meditation}
 
     \begin{columns}
-        \column{0.6 \textwidth}
+        \begin{column}{0.6 \textwidth}
 
-        Counterfactual outcomes
+            Counterfactual outcomes
 
-        \begin{table}[]
-            \begin{tabular}{lcl}
-                anxiety, no meditation & $Y_i(0)$ & $\in \R$ \\
-                anxiety, meditation    & $Y_i(1)$ & $\in \R$
-            \end{tabular}
-        \end{table}
+            \begin{table}[]
+                \begin{tabular}{lcl}
+                    anxiety, no meditation & $Y_i(0)$ & $\in \R$ \\
+                    anxiety, meditation    & $Y_i(1)$ & $\in \R$
+                \end{tabular}
+            \end{table}
 
-        Observed data
+            Observed data
 
-        \begin{table}[]
-            \begin{tabular}{lcrl}
-                Treatment & meditation & $T_i$ & $\in \set{0, 1} $ \\
-                Outcome   & anxiety    & $Y_i$ & $\in \R$
-            \end{tabular}
-        \end{table}
-        \begin{align*}
-            \ate    & = \E{Y_i (1) - Y_i (0)}                       \\
-                    & = \E{Y_i \mid T_i = 1} - \E{Y_i \mid T_i = 0} \\
-            \atehat & = -2.7 \pm 1.3
-        \end{align*}
-
-        \column{0.4 \textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics{figures/week4_scatter.png}
+            \begin{table}[]
+                \begin{tabular}{lcrl}
+                    Treatment & meditation & $T_i$ & $\in \set{0, 1} $ \\
+                    Outcome   & anxiety    & $Y_i$ & $\in \R$
+                \end{tabular}
+            \end{table}
+            \begin{align*}
+                \ate    & = \E{Y_i (1) - Y_i (0)}                       \\
+                        & = \E{Y_i \mid T_i = 1} - \E{Y_i \mid T_i = 0} \\
+                \atehat & = -2.7 \pm 1.3
+            \end{align*}
+        \end{column}
+        \begin{column}{0.4 \textwidth}
             \centering
-        \end{figure}
+            \begin{figure}[ht]
+                \includegraphics{figures/week4_scatter.png}
+                \centering
+            \end{figure}
+        \end{column}
     \end{columns}
 \end{frame}
 
@@ -100,58 +400,62 @@
 
 \begin{frame}{Multi-stage effects can be formalized as causal mediation}
     \begin{columns}
-        \column{0.67 \textwidth}
-        Decompose effect of $T_i$ on $Y_i$:
+        \begin{column}{0.67 \textwidth}
+            Decompose effect of $T_i$ on $Y_i$:
 
-        \vspace{4mm}
+            \vspace{4mm}
 
-        \begin{enumerate}
-            \item Effect operating along $T_i \to Y_i$ path (direct)
-                  \begin{itemize}
-                      \item i.e., guided breathing reduces anxiety
-                  \end{itemize}
-                  \vspace{2mm}
-            \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
+            \begin{enumerate}
+                \item Effect operating along $T_i \to Y_i$ path (direct)
+                      \begin{itemize}
+                          \item i.e., guided breathing reduces anxiety
+                      \end{itemize}
+                      \vspace{2mm}
+                \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
 
-                  \begin{itemize}
-                      \item i.e., meditation program decreases loneliness, which in turn decreases anxiety
-                  \end{itemize}
-        \end{enumerate}
+                      \begin{itemize}
+                          \item i.e., meditation program decreases loneliness, which in turn decreases anxiety
+                      \end{itemize}
+            \end{enumerate}
 
-        \begin{equation*}
-            \ate = \nde + \nie
-        \end{equation*}
-        \column{0.32 \textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics[width=\textwidth]{figures/dags/mediating.png}
-        \end{figure}
+            \begin{equation*}
+                \ate = \nde + \nie
+            \end{equation*}
+        \end{column}
+        \begin{column}{0.32 \textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[width=\textwidth]{figures/dags/mediating.png}
+            \end{figure}
+        \end{column}
     \end{columns}
 \end{frame}
 
 \begin{frame}{Natural direct and indirect effects are defined counterfactually}
     \begin{columns}
-        \column{0.67 \textwidth}
-        \begin{table}[]
-            \begin{tabular}{lcrl}
-                Treatment   & meditation      & $T_i$          & $\in \set{0, 1} $     \\
-                Outcome     & anxiety         & $Y_i$          & $\in \R$              \\
-                Mediators   & cognitive state & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-                Confounders & age \& sex      & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
-            \end{tabular}
-        \end{table}
-        \begin{align*}
-            \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
-            \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
-        \end{align*}
+        \begin{column}{0.67 \textwidth}
+            \begin{table}[]
+                \begin{tabular}{lcrl}
+                    Treatment   & meditation      & $T_i$          & $\in \set{0, 1} $     \\
+                    Outcome     & anxiety         & $Y_i$          & $\in \R$              \\
+                    Mediators   & cognitive state & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
+                    Confounders & age \& sex      & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
+                \end{tabular}
+            \end{table}
+            \begin{align*}
+                \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
+                \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
+            \end{align*}
 
-        If we knew cognitive state, we could use standard tools. But cognitive state is latent!
-        \column{0.33 \textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics[width=\textwidth]{figures/dags/mediating.png}
+            If we knew cognitive state, we could use standard tools. But cognitive state is latent!
+        \end{column}
+        \begin{column}{0.33 \textwidth}
             \centering
-        \end{figure}
+            \begin{figure}[ht]
+                \includegraphics[width=\textwidth]{figures/dags/mediating.png}
+                \centering
+            \end{figure}
+        \end{column}
     \end{columns}
 \end{frame}
 
@@ -287,7 +591,7 @@
 
 \end{frame}
 
-\begin{frame}{We use survey responses to estimate latent participant embeedings}
+\begin{frame}{We use survey responses to estimate latent participant embeddings}
     \centering
     \begin{figure}
         \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
@@ -435,18 +739,20 @@
 \begin{frame}{We estimate that most of the effect is along the direct pathway}
 
     \begin{columns}
-        \column{0.35\textwidth}
-        \begin{align*}
-            \atehat & = -2.7 \pm 1.3 \\
-            \ndehat & = -1.8 \pm 1.1 \\
-            \niehat & = -1 \pm 0.7
-        \end{align*}
+        \begin{column}{0.35\textwidth}
+            \begin{align*}
+                \atehat & = -2.7 \pm 1.3 \\
+                \ndehat & = -1.8 \pm 1.1 \\
+                \niehat & = -1 \pm 0.7
+            \end{align*}
 
-        \column{0.65\textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
-        \end{figure}
+        \end{column}
+        \begin{column}{0.65\textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
+            \end{figure}
+        \end{column}
     \end{columns}
 \end{frame}
 
@@ -458,18 +764,20 @@
     \end{itemize}
 
     \begin{columns}
-        \column{0.3 \textwidth}
-        \begin{align*}
-            \ate    & = \nde + \nie  \\
-            \atehat & = -2.7 \pm 1.3 \\
-            \ndehat & = -1.8 \pm 1.1 \\
-            \niehat & = -1 \pm 0.7
-        \end{align*}
-        \column{0.7 \textwidth}
-        \centering
-        \begin{figure}[ht]
-            \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
-        \end{figure}
+        \begin{column}{0.3 \textwidth}
+            \begin{align*}
+                \ate    & = \nde + \nie  \\
+                \atehat & = -2.7 \pm 1.3 \\
+                \ndehat & = -1.8 \pm 1.1 \\
+                \niehat & = -1 \pm 0.7
+            \end{align*}
+        \end{column}
+        \begin{column}{0.7 \textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
+            \end{figure}
+        \end{column}
     \end{columns}
 \end{frame}
 
@@ -574,15 +882,12 @@
 % \end{frame}
 
 \begin{frame}{Semi-parametric network model}
-
     \begin{definition}
         Let $A \in \R^{n \times n}$ be a random symmetric matrix, such as the adjacency matrix of an undirected graph. Let $\Apop = \E[\X]{A} = \X \X^T$ be the expectation of $A$ conditional on $\X \in \R^{n \times d}$, which has independent and identically distributed rows $\X_{1 \cdot}, \dots, \X_{n \cdot}$. That is, $\Apop$ has $\rank \paren*{\Apop} = d$ and is positive semi-definite with eigenvalues $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_d > 0 = \lambda_{d+1} = \cdots = \lambda_n$. Conditional on $\X$, the upper-triangular elements of $A - \Apop$ are independent $(\nu_n, b_n)$-sub-gamma random variables.
     \end{definition}
-
     \begin{remark}
         $\Apop = \X \X^T = (\X Q) (\X Q)^T$ for any $d \times d$ orthogonal matrix $Q$, the latent positions $\X$ are only identifiable up to an orthogonal transformation.
     \end{remark}
-
 \end{frame}
 
 \begin{frame}{Choosing $\widehat{d}$: overestimating the embedding dimension is fine}
@@ -693,7 +998,6 @@
 
 \begin{frame}{Network model}
 
-
     \begin{definition}
         Let $A \in \R^{n \times n}$ be a random symmetric matrix, such as the adjacency matrix of an undirected graph. Let $\Apop = \E[\X]{A} = \X \X^T$ be the expectation of $A$ conditional on $\X \in \R^{n \times d}$, which has independent and identically distributed rows $\X_{1 \cdot}, \dots, \X_{n \cdot}$. That is, $\Apop$ has $\rank \paren*{\Apop} = d$ and is positive semi-definite with eigenvalues $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_d > 0 = \lambda_{d+1} = \cdots = \lambda_n$. Conditional on $\X$, the upper-triangular elements of $A - \Apop$ are independent $(\nu_n, b_n)$-sub-gamma random variables.
     \end{definition}
@@ -704,7 +1008,7 @@
 
 \end{frame}
 
-% \bibliographystyle{chicago}
-% \bibliography{2024-06-17-netsci}
+\bibliographystyle{chicago}
+\bibliography{2024-06-17-netsci}
 
 \end{document}

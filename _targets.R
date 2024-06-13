@@ -164,5 +164,23 @@ list(
     regression_figures,
     make_regression_figures(nested_by_event),
     format = "file"
+  ),
+  
+  tar_target(
+    confounding_homophily_interference_figure,
+    make_confounding_homophily_interference_figure(),
+    format = "file"
+  ),
+  
+  tar_target(
+    confounding_homophily_figure,
+    make_confounding_homophily_figure(),
+    format = "file"
+  ),
+  
+  tar_target(
+    homophily_mediating_figure,
+    make_homophily_mediating_figure(),
+    format = "file"
   )
 )

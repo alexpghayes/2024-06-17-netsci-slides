@@ -350,21 +350,44 @@ make_regression_figures <- function(nested_by_event) {
   
   A <- nested_by_event$A[[4]] 
   
-  Xhat <- US(A, rank = 3) |> 
-    as.data.frame() |> 
-    set_names(paste0("Xhat", 1:3)) |> 
+  fa <- vsp(A, rank = 5, degree_normalize = FALSE)
+  
+  Xhat <- fa$Z %*% fa$B |> 
+    as.data.frame() |>
+    set_names(paste0("Xhat", 1:5)) |>
     mutate(
       name = rownames(A)
     )
   
+  # Xhat <- Z(A, rank = 5) |> 
+  #   as.data.frame() |> 
+  #   set_names(paste0("Xhat", 1:5)) |> 
+  #   mutate(
+  #     name = rownames(A)
+  #   )
+  # 
   node_data <- nested_by_event$node_data[[4]]
   
-  merged <- left_join(node_data, Xhat, by = "name")
+  merged <- left_join(node_data, Xhat, by = "name") |> 
+    mutate(
+      age2 = age^2
+    )
   
-  o_fit <- lm_robust(
-    anxiety ~ intervention + Xhat1 + Xhat2+ age + I(age^2) + sex,
+  o_fit <- merged |> 
+    select(anxiety, intervention, age, sex, Xhat1:Xhat5) |> 
+    lm_robust(
+      anxiety ~ .,
+      data = _
+    )
+  
+  summary(o_fit)
+  
+  o_fit <- lm(
+    anxiety ~ intervention + Xhat1 + Xhat2 + Xhat3 + Xhat4 + Xhat5 + age + age2 + sex,
     data = merged
   )
+  
+  summary(o_fit)
   
   plot <- tidy(o_fit, conf.int = TRUE) |> 
     mutate(
@@ -412,7 +435,7 @@ make_regression_figures <- function(nested_by_event) {
   )
   
   m_fit <- lm_robust(
-    cbind(Xhat1, Xhat2) ~ intervention + age + I(age^2) + sex,
+    cbind(Xhat1, Xhat2, Xhat3, Xhat4, Xhat5) ~ intervention + age + I(age^2) + sex,
     data = merged
   )
   

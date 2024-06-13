@@ -1,3 +1,20 @@
+@misc{chang2024a,
+  title = {Embedding {{Network Autoregression}} for Time Series Analysis and Causal Peer Effect Inference},
+  author = {Chang, Jae Ho and Paul, Subhadeep},
+  year = {2024},
+  month = jun,
+  number = {arXiv:2406.05944},
+  eprint = {2406.05944},
+  primaryclass = {math, stat},
+  publisher = {arXiv},
+  urldate = {2024-06-12},
+  abstract = {We propose an Embedding Network Autoregressive Model (ENAR) for multivariate networked longitudinal data. We assume the network is generated from a latent variable model, and these unobserved variables are included in a structural peer effect model or a time series network autoregressive model as additive effects. This approach takes a unified view of two related problems, (1) modeling and predicting multivariate time series data and (2) causal peer influence estimation in the presence of homophily from finite time longitudinal data. Our estimation strategy comprises estimating latent factors from the observed network adjacency matrix either through spectral embedding or maximum likelihood estimation, followed by least squares estimation of the network autoregressive model. We show that the estimated momentum and peer effect parameters are consistent and asymptotically normal in asymptotic setups with a growing number of network vertices N while including a growing number of time points T and finite T cases. We allow the number of latent vectors K to grow at appropriate rates, which improves upon existing rates when such results are available for related models.},
+  archiveprefix = {arxiv},
+  langid = {english},
+  keywords = {Mathematics - Statistics Theory,Statistics - Methodology},
+  file = {/home/alex/Zotero/storage/9AQ4XL2C/Chang and Paul - 2024 - Embedding Network Autoregression for time series a.pdf}
+}
+
 @article{chen2021,
   title = {Estimating {{Graph Dimension}} with {{Cross-validated Eigenvalues}}},
   author = {Chen, Fan and Roch, Sebastien and Rohe, Karl and Yu, Shuqi},
@@ -12,6 +29,23 @@
   langid = {english},
   keywords = {Computer Science - Machine Learning,Computer Science - Social and Information Networks,Mathematics - Statistics Theory,Statistics - Methodology},
   file = {/home/alex/Zotero/storage/BGAI4YCT/Chen et al. - 2021 - Estimating Graph Dimension with Cross-validated Ei.pdf}
+}
+
+@article{christakis2007,
+  title = {The {{Spread}} of {{Obesity}} in a {{Large Social Network}} over 32 {{Years}}},
+  author = {Christakis, Nicholas A. and Fowler, James H.},
+  year = {2007},
+  month = jul,
+  journal = {New England Journal of Medicine},
+  volume = {357},
+  number = {4},
+  pages = {370--379},
+  issn = {0028-4793, 1533-4406},
+  doi = {10.1056/NEJMsa066082},
+  urldate = {2021-03-08},
+  abstract = {Background The prevalence of obesity has increased substantially over the past 30 years. We performed a quantitative analysis of the nature and extent of the person-to-person spread of obesity as a possible factor contributing to the obesity epidemic. Methods We evaluated a densely interconnected social network of 12,067 people assessed repeatedly from 1971 to 2003 as part of the Framingham Heart Study. The bodymass index was available for all subjects. We used longitudinal statistical models to examine whether weight gain in one person was associated with weight gain in his or her friends, siblings, spouse, and neighbors. N Engl J Med 2007;357:370-9. Copyright {\copyright} 2007 Massachusetts Medical Society. Results Discernible clusters of obese persons were present in the network at all time points, and the clusters extended to three degrees of separation. These clusters did not appear to be solely attributable to the selective formation of social ties among obese persons. A person's chances of becoming obese increased by 57\% (95\% confidence interval [CI], 6 to 123) if he or she had a friend who became obese in a given interval. Among pairs of adult siblings, if one sibling became obese, the chance that the other would become obese increased by 40\% (95\% CI, 21 to 60). If one spouse became obese, the likelihood that the other spouse would become obese increased by 37\% (95\% CI, 7 to 73). These effects were not seen among neighbors in the immediate geographic location. Persons of the same sex had relatively greater influence on each other as compared with those of the opposite sex. The spread of smoking cessation did not account for the spread of obesity in the network. Conclusions Network phenomena appear to be relevant to the biologic and behavioral trait of obesity, and obesity appears to spread through social ties. These findings have implications for clinical and public health interventions.},
+  langid = {english},
+  file = {/home/alex/Zotero/storage/6YD5U8A6/Christakis y Fowler - 2007 - The Spread of Obesity in a Large Social Network ov.pdf}
 }
 
 @article{hirshberg2024,
@@ -29,4 +63,39 @@
   abstract = {Understanding why interventions work is essential to optimizing them. Although mechanistic theories of meditation-based interventions (MBIs) exist, empirical evidence is limited. We randomly assigned 662 adults (79.9\% reported clinical levels of anxiety or depressive symptoms) to a 4-week smartphone-based MBI or wait-list control condition early in the COVID-19 pandemic. Psychological distress and four theory-driven preregistered psychological mediators of well-being (mindful action, loneliness, cognitive defusion, and purpose) were assessed five times during the intervention period and at 3-month follow-up. In preregistered analyses, assignment to the intervention predicted significant gains on all mediators, which, in turn, significantly mediated follow-up distress (21.9\%--62.5\% of intervention effect on distress). No significant mediation pathway was observed in an exploratory multiple mediator analysis, but reduced loneliness accounted for 61.7\% of the combined indirect effect. Multiple psychological pathways may mediate reduced distress in a digital MBI.},
   langid = {english},
   file = {/home/alex/Zotero/storage/2WMEKJ4R/Hirshberg et al. - 2024 - Psychological Mediators of Reduced Distress Prere.pdf}
+}
+
+@article{mcfowland2021,
+  title = {Estimating {{Causal Peer Influence}} in {{Homophilous Social Networks}} by {{Inferring Latent Locations}}},
+  author = {McFowland, Edward and Shalizi, Cosma Rohilla},
+  year = {2021},
+  month = jul,
+  journal = {Journal of the American Statistical Association},
+  volume = {0},
+  number = {0},
+  pages = {1--12},
+  publisher = {Taylor \& Francis},
+  issn = {0162-1459},
+  doi = {10.1080/01621459.2021.1953506},
+  urldate = {2022-11-28},
+  abstract = {Social influence cannot be identified from purely observational data on social networks, because such influence is generically confounded with latent homophily, that is, with a node's network partners being informative about the node's attributes and therefore its behavior. If the network grows according to either a latent community (stochastic block) model, or a continuous latent space model, then latent homophilous attributes can be consistently estimated from the global pattern of social ties. We show that, for common versions of those two network models, these estimates are so informative that controlling for estimated attributes allows for asymptotically unbiased and consistent estimation of social-influence effects in linear models. In particular, the bias shrinks at a rate that directly reflects how much information the network provides about the latent attributes. These are the first results on the consistent nonexperimental estimation of social-influence effects in the presence of latent homophily, and we discuss the prospects for generalizing them.},
+  keywords = {Causal Inference,Homophily,Peer Influence,Social Networks},
+  file = {/home/alex/Zotero/storage/IHW5PZFC/McFowland and Shalizi - 2021 - Estimating Causal Peer Influence in Homophilous So.pdf}
+}
+
+@article{shalizi2011,
+  title = {Homophily and {{Contagion Are Generically Confounded}} in {{Observational Social Network Studies}}},
+  author = {Shalizi, Cosma Rohilla and Thomas, Andrew C.},
+  year = {2011},
+  month = may,
+  journal = {Sociological Methods \& Research},
+  volume = {40},
+  number = {2},
+  pages = {211--239},
+  issn = {0049-1241, 1552-8294},
+  doi = {10.1177/0049124111404820},
+  urldate = {2023-09-04},
+  abstract = {The authors consider processes on social networks that can potentially involve three factors: homophily, or the formation of social ties due to matching individual traits; social contagion, also known as social influence; and the causal effect of an individual's covariates on his or her behavior or other measurable responses. The authors show that generically, all of these are confounded with each other. Distinguishing them from one another requires strong assumptions on the parametrization of the social process or on the adequacy of the covariates used (or both). In particular the authors demonstrate, with simple examples, that asymmetries in regression coefficients cannot identify causal effects and that very simple models of imitation (a form of social contagion) can produce substantial correlations between an individual's enduring traits and his or her choices, even when there is no intrinsic affinity between them. The authors also suggest some possible constructive responses to these results.},
+  langid = {english},
+  file = {/home/alex/Zotero/storage/YGJHPIVC/Shalizi and Thomas - 2011 - Homophily and Contagion Are Generically Confounded.pdf}
 }
