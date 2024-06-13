@@ -5,7 +5,7 @@
 \usepackage{subcaption}
 \usepackage{caption}
 
-\usetheme[numbering=fraction, block=fill]{metropolis}
+\usetheme[numbering=none, block=fill]{metropolis}
 \setsansfont{Fira Sans}  % be sure to compile with XeLaTeX
 
 \usepackage{natbib}
@@ -24,73 +24,184 @@
 
 \hypersetup{colorlinks,citecolor=cyan, urlcolor=cyan, linkcolor=black}
 
-\title{Linear regression for causal inference on social networks via network embeddings}
+\title{Estimating network-mediated causal effects via
+spectral embeddings}
 
 % Principle components network regression for causal inference with network embeddings
 % Causal Network Influence with Latent Homophily and Measurement Error: An Application to Therapeutic Community
 % Linear regression and its inference on noisy network-linked data
 % Linear regression for causal inference on social networks via network embeddings
 
-\date{2024-06-17}
+\date{NetSci 2024}
 \author{Alex Hayes}
-\institute{University of Wisconsin-Madison}
+\institute{Department of Statistics \\ University of Wisconsin-Madison}
+
+
+% \date{2023-08-09 @ JSM 2023 \\ Recent Developments in Causal Inference}
+% \author{Alex Hayes, Mark Fredrickson \& Keith Levin}
 
 
 \begin{document}
 
 \maketitle
 
-\begin{frame}{\citealt{christakis2007} catalyzed methodology for social networks}
-    \begin{figure}
+\begin{frame}{This is joint work}
+    \begin{columns}
         \centering
-        \includegraphics[width=0.8\textwidth]{./figures/christakis2.png}
-    \end{figure}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=4cm, height=5.75cm]{./figures/mark.jpg}
+            \end{figure}
+            \centering
+            Mark Fredrickson \\
+            University of Michigan
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \centering
+            \begin{figure}
+                \includegraphics[width=4cm, height=5.75cm]{./figures/keith.jpg}
+            \end{figure}
+            Keith Levin \\
+            UW-Madison
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}{\citealt{shalizi2011} argued the issue was failure to account for homophily}
-    \begin{figure}
+\begin{frame}{Motivation: understand causes of teenage smoking \citep{michell1996}}
+    \begin{columns}
         \centering
-        \includegraphics[width=0.9\textwidth]{./figures/shalizi20112.png}
-    \end{figure}
+        \begin{column}{0.55\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.05\textwidth]{figures/glasgow/tobacco.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item 129 middle-schoolers in Glasgow
+                \item {\bf Social network} based on self-reported friendships
+                \item {\bf Auxiliary data:} spending money, leisure activities
+                \item {\bf Demographics:} sex, age
+                \item {\bf Behavior:} alcohol, cannabis and tobacco use
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{2mm}
+    \pause
+    \centering
+    \textbf{Question:} how does sex influence tobacco use?
 \end{frame}
 
-\begin{frame}{There is now an explosion of approaches that account for homophily}
-    \begin{figure}
+\begin{frame}{Smoking is a sexually differentiated behavior and also a social behavior}
+    \begin{columns}
         \centering
-        \includegraphics[width=\textwidth]{./figures/mcfowland2.png}
-    \end{figure}
+        \begin{column}{0.55\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.05\textwidth]{figures/glasgow/sex.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Direct effect} of sex on smoking
+            \begin{itemize}
+                \item Social and cultural expectations could lead to more or less smoking
+            \end{itemize}
+            \vspace{2mm}
+            \textbf{Indirect effect} of sex on smoking
+            \begin{itemize}
+                \item Students to be friends with other students of same sex...
+                \item ...friends induce one another to smoke
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{2mm}
+    \pause
+    \centering
+    Should anti-smoking interventions target the direct or the social mechanism?
 \end{frame}
 
-% \begin{frame}[standout]
-%     To do inference on social networks, especially causal inference, we must account for homophily
-% \end{frame}
+\begin{frame}{Defining causal effects is straightforward when there is no social network}
+    \begin{columns}
+        \begin{column}{0.65\textwidth}
+            \begin{table}[]
+                \begin{tabular}{lrl}
+                    Treatment   & $T_i$          & $\in \set{0, 1} $     \\
+                    Outcome     & $Y_i$          & $\in \R$              \\
+                    Mediators   & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
+                    Confounders & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
+                \end{tabular}
+            \end{table}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[height=0.5\textheight]{figures/dags/mediating.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \begin{definition}[Average treatment effect]
+        \begin{equation*}
+            \ate = \E{Y(1) - Y(0)}
+        \end{equation*}
+        \centering
+        $Y(t)$ is the \underline{counterfactual outcome} under treatment value $t \in \{0, 1\}$.
+    \end{definition}
+\end{frame}
 
-\begin{frame}{Homophily is the tendency for behavior to vary with social group}
+\begin{frame}{Decomposing causal effects is straightforward when there is no social network}
+    \begin{columns}
+        \begin{column}{0.65\textwidth}
+            Two distinct mechanisms:
+            \begin{enumerate}
+                \item Direct effect along $T_i \to Y_i$ path
+                \item Indirect effect along $T_i \to \X_{i \cdot} \to Y_i$ path
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \centering
+            \begin{figure}[ht]
+                \includegraphics[height=0.5\textheight]{figures/dags/mediating.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \begin{definition}[Natural direct and indirect effects]
+        \begin{equation*}
+            \begin{aligned}
+                \ate & = \nde + \nie                                               \\
+                     & = \E{Y(1, M(0)) - Y(0, M(0))} + \E{Y(1, M(1)) - Y(1, M(0))}
+            \end{aligned}
+        \end{equation*}
+        \centering
+        $Y(t, m)$ is the \underline{counterfactual outcome} under treatment $t$ and mediator $m$
+    \end{definition}
+\end{frame}
+
+\begin{frame}{We want to decompose node-level effects into direct and social components}
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{figure}
                 \centering
                 \includegraphics[width=\textwidth]{./figures/assortative.png}
-                \footnotesize
-                \caption*{Nodes colored by social group}
             \end{figure}
         \end{column}
         \begin{column}{0.6\textwidth}
-            \vspace{4mm} \\
-            \begin{table}[]
-                \begin{tabular}{llcl}
-                    Nodes           & (people)       & $i$           & $\in \set{1, \dots, n}$ \\
-                    Edge $i \sim j$ & (friends?)     & $A_{ij}$      & $\in \{0, 1\}$          \\
-                                    &                &               &                         \\
-                    Outcome         &                & $Y_i$         & $\in \R$                \\
-                    Treatment       &                & $T_i$         & $\in \R$                \\
-                                    &                &               &                         \\
-                    Latent position & (social group) & $X_{i \cdot}$ & $\in \R^d$              \\
-                \end{tabular}
-            \end{table}
+            Network $A \in \R^{n \times n}$ \\
+            \vspace{2mm}
+            For each node $i$:
+            \begin{itemize}
+                \item Treatment $T_i \in \{0, 1\}$
+                \item Outcome $Y_i \in \R$
+                \item Confounders $C_{i \cdot} \in \R^p$
+            \end{itemize}
+            \vspace{2mm}
+            The network $A$ is noisy and complex but often exhibits high levels of homophily \\
+            \vspace{2mm}
+            \pause
+            Assume each node belongs to a social group $\X_{i \cdot}$ and behaviors vary with social group
         \end{column}
     \end{columns}
 \end{frame}
+
 
 \begin{frame}{Stochastic blockmodels are the canonical model for social groups}
     \begin{columns}
@@ -116,7 +227,7 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{There are many extensions to the stochastic blockmodel}
+\begin{frame}{We have very rich and general models for latent social groups}
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{figure}
@@ -144,33 +255,37 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{A natural approach to model homophily is to include $\X$ in regression models}
-    \begin{equation*}
-        \begin{aligned}
-            % \underbrace{\E[\X_{i \cdot}, \X_{j \cdot}]{A_{ij}}}_{\R^{n \times n}}
-            %  & = \X_{i \cdot} \X_{j \cdot}^T
-            %  & \text{network}                                                       \\
-            \underbrace{\E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}}_{\R}
-             & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax
-             & \text{outcome}                                                       \\
-            \underbrace{\E[T_i, \C_{i \cdot}]{\X_{i \cdot}}}_{\R^{1 \times d}}
-             & = \thetazero + T_i \thetat + \C_{i \cdot} \Thetac
-             & \text{latent positions}
-        \end{aligned}
-    \end{equation*}
-    \begin{center}
-        $\betax$ is ``the effect of belonging to a particular social group'' \\
-    \end{center}
-    \footnotesize
-    \begin{table}[]
-        \begin{tabular}{lcl}
-            Edge $i \sim j$ & $A_{ij}$       & $\in \R$              \\
-            Latent position & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-            Treatment       & $T_i$          & $\in \set{0, 1}$      \\
-            Outcome         & $Y_i$          & $\in \R$              \\
-            Confounders     & $\C_{i \cdot}$ & $\in \R^{1 \times p}$ \\
-        \end{tabular}
-    \end{table}
+\begin{frame}{Goal: estimate direct and indirect effects as mediated by latent social groups}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./figures/dags/homophily-mediating.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{We want to use a regression estimator for direct and indirect effects}
+    \begin{block}{Assumption}
+        \begin{equation*}
+            \begin{aligned}
+                \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+                 & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax
+                 & \text{outcome model}                                                 \\
+                \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
+                 & = \thetazero + T_i \thetat + \C_{i \cdot} \Thetac
+                 & \text{mediator model}
+            \end{aligned}
+        \end{equation*}
+    \end{block}
+    \begin{block}{Fact: semi-parametric identification of natural mediated effects}
+        Under previous assumption, when natural direct and indirect effect are non-parametrically identified, we have
+        \begin{equation*}
+            \begin{aligned}
+                \nde & = \betat            \\
+                \nie & = \thetat \, \betax
+            \end{aligned}
+        \end{equation*}
+    \end{block}
+    \centering
+    \textbf{Problem}: We don't see the latent social groups $\X$, can't fit regressions
 \end{frame}
 
 \begin{frame}{Latent positions $X$ can be estimated via principle components analysis}
@@ -203,10 +318,13 @@
         \Thetahat
         = \paren*{\Wfull^T \Wfull}^{-1} \Wfull^T \Xhat.
     \end{equation*}
+    \begin{align*}
+        \ndehat = \betathat \quad \text{and} \quad \niehat = \thetathat \, \betaxhat
+    \end{align*}
 \end{frame}
 
-\begin{frame}{Ordinary least squares estimates are asymptotically normal}
-    \begin{theorem}[]
+\begin{frame}{Ordinary least squares regression estimates are asymptotically normal}
+    \begin{theorem}
         Under a suitably well-behaved network model and some moments conditions on regression errors, there is an unknown orthogonal matrix $Q$ such that
         \begin{equation*}
             \begin{aligned}
@@ -234,8 +352,7 @@
     Note: must correctly specify dimension of latent positions $d$
 \end{frame}
 
-\begin{frame}{Our results are substantially more general than similar work}
-
+\begin{frame}{Aside: our regression results are substantially more general than similar work}
     \begin{itemize}
         \item Network can be weighted, rather than binary
         \item No parametric assumptions on edge noise
@@ -243,11 +360,54 @@
         \item Regression errors can be heteroscedastic
         \item Can model latent positions as outcomes
     \end{itemize}
-
     Principle components + ordinary least squares is a very general, distributionally agnostic tool for network regression \\
     \vspace{2mm}
     \underline{Folklore}: similar results hold for asymmetric $A$, rectangular $A$, bipartite $A$, graph Laplacian embeddings rather than adjacency matrix embeddings, general regression $M$-estimators other than ordinary least squares
 \end{frame}
+
+\begin{frame}{Causal estimators are asymptotically normal}
+    \vspace{2mm}
+    \begin{theorem}
+        Under the same statistical assumptions as before, plus counterfactual assumptions required for causal identification,
+        \begin{align*}
+            \sqrt{n \, \sigmahatnde} \paren*{\ndehat - \nde}
+             & \to
+            \Normal{0}{1}, \text { and } \\
+            \sqrt{n \, \sigmahatnie} \paren*{\niehat - \nie}
+             & \to
+            \Normal{0}{1}.
+        \end{align*}
+        \noindent where $\sigmahatnde$ and $\sigmahatnie$ are rather unfriendly variance estimators derived via the delta method and the previous theorem.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Takeaways}
+    \begin{itemize}
+        \item We developed a method to decompose causal effects into effects operating along direct and indirect pathways in a low-rank latent space
+        \item "Latent causal effects" sounds scary, but can often just look at your data to interpret them
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Thank you! Questions?}
+
+    Hayes, Alex, Mark M. Fredrickson, and Keith Levin. “Estimating Network-Mediated Causal Effects via Spectral Embeddings.” arXiv, April 14, 2023. \url{https://arxiv.org/abs/2212.12041}.
+
+    Read the manuscript at  \\
+    R package \href{https://github.com/alexpghayes/latentnetmediate}{latentnetmediate} \\
+    \textbf{Stay in touch} \\
+    \begin{itemize}
+        \item[] \faIcon{twitter} \href{https://twitter.com/alexpghayes}{@alexpghayes}
+        \item[] \faIcon[regular]{envelope} \href{mailto:alex.hayes@wisc.edu}{alex.hayes@wisc.edu}
+        \item[] \faIcon{wordpress} \url{https://www.alexpghayes.com}
+        \item[] \faIcon{github} \url{https://github.com/alexpghayes}
+    \end{itemize}
+    \textbf{I'm looking for a post-doc starting Fall 2024, say hi if this work interests you!} \\
+    These slides are available at \url{https://github.com/alexpghayes/2024-06-17-netsci-slides}
+\end{frame}
+
+\appendix
+
+
 
 \begin{frame}{Peer effects}
     \begin{itemize}
@@ -273,580 +433,34 @@
     Lots of research attention focused on using this kind of model for causal inference
 \end{frame}
 
-\begin{frame}{People typically use embeddings to fairly blindly control for latent confounding}
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{./figures/dags/confounding-homophily.png}
-    \end{figure}
+
+\begin{frame}{Identifying assumptions}
+    \begin{block}
+        The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
+        \begin{enumerate}
+            \item Consistency: \vspace{-3mm}
+                  \begin{equation*} \begin{aligned}
+                           & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
+                           & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
+                          \vspace{-2mm}
+                      \end{aligned} \end{equation*}
+            \item Sequential ignorability:
+                  \begin{equation*}
+                      \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
+                      ~~~\text{ and }~~~
+                      \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
+                  \end{equation*}
+            \item Positivity:
+                  \begin{equation*}
+                      \begin{aligned}
+                          \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
+                          \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
+                      \end{aligned}
+                  \end{equation*}
+        \end{enumerate}
+    \end{block}
 \end{frame}
 
-\begin{frame}{What happens if treatment effects latent position rather than vice versa?}
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{./figures/dags/homophily-mediating.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Causal mediation}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{table}[]
-                \begin{tabular}{lrl}
-                    Treatment   & $T_i$          & $\in \set{0, 1} $     \\
-                    Outcome     & $Y_i$          & $\in \R$              \\
-                    Mediators   & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-                    Confounders & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
-                \end{tabular}
-            \end{table}
-            Decompose effect of $T_i$ on $Y_i$:
-            \begin{enumerate}
-                \item Effect operating along $T_i \to Y_i$ path (direct)
-                \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
-            \end{enumerate}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics[width=.7\textwidth]{figures/dags/mediating.png}
-            \end{figure}
-            \vspace{-7mm}
-            \begin{align*}
-                \ate & = \nde + \nie                                                    \\
-                \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
-                \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
-            \end{align*}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}
-    When latent positions are confounders:
-    \begin{equation*}
-        \begin{aligned}                                                    \\
-            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{average} \\ \text{treatment} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \betax
-        \end{aligned}
-    \end{equation*}
-
-    When latent positions are mediators:
-    \begin{equation*}
-        \begin{aligned}                                                    \\
-            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{natural}     \\ \text{direct} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \underbrace{\betax}_{\substack{\text{effect of} \\ \text{$X$ on $Y$ (?)}}}  \\
-            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
-             & = \thetazero + T_i \underbrace{\thetat}_{\substack{\text{effect of} \\ \text{$T$ on $X$}}}  + \C_{i \cdot} \Thetac
-        \end{aligned}
-    \end{equation*}
-\end{frame}
-
-\begin{frame}{Experiments (n = 662) show that smartphone-guided meditation reduces anxiety}
-    \begin{figure}
-        \centering
-        \includegraphics{./figures/ate.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{We study the causal effect of four weeks of meditation}
-
-    \begin{columns}
-        \begin{column}{0.6 \textwidth}
-
-            Counterfactual outcomes
-
-            \begin{table}[]
-                \begin{tabular}{lcl}
-                    anxiety, no meditation & $Y_i(0)$ & $\in \R$ \\
-                    anxiety, meditation    & $Y_i(1)$ & $\in \R$
-                \end{tabular}
-            \end{table}
-
-            Observed data
-
-            \begin{table}[]
-                \begin{tabular}{lcrl}
-                    Treatment & meditation & $T_i$ & $\in \set{0, 1} $ \\
-                    Outcome   & anxiety    & $Y_i$ & $\in \R$
-                \end{tabular}
-            \end{table}
-            \begin{align*}
-                \ate    & = \E{Y_i (1) - Y_i (0)}                       \\
-                        & = \E{Y_i \mid T_i = 1} - \E{Y_i \mid T_i = 0} \\
-                \atehat & = -2.7 \pm 1.3
-            \end{align*}
-        \end{column}
-        \begin{column}{0.4 \textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics{figures/week4_scatter.png}
-                \centering
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Psychologists want to know \underline{why} the Healthy Minds Program reduces distress}
-
-    The meditation program is designed to alter latent cognitive factors
-
-    \begin{enumerate}
-        \item Awareness (mindful action)
-        \item Connection (social connection, reducing loneliness)
-        \item Insight (cognitive defusion)
-        \item Purpose (presence of meaning)
-    \end{enumerate}
-
-    The hope: improving these latent cognitive factors reduces anxiety
-\end{frame}
-
-\begin{frame}{Multi-stage effects can be formalized as causal mediation}
-    \begin{columns}
-        \begin{column}{0.67 \textwidth}
-            Decompose effect of $T_i$ on $Y_i$:
-
-            \vspace{4mm}
-
-            \begin{enumerate}
-                \item Effect operating along $T_i \to Y_i$ path (direct)
-                      \begin{itemize}
-                          \item i.e., guided breathing reduces anxiety
-                      \end{itemize}
-                      \vspace{2mm}
-                \item Effect operating along $T_i \to \X_{i \cdot} \to Y_i$ path (indirect)
-
-                      \begin{itemize}
-                          \item i.e., meditation program decreases loneliness, which in turn decreases anxiety
-                      \end{itemize}
-            \end{enumerate}
-
-            \begin{equation*}
-                \ate = \nde + \nie
-            \end{equation*}
-        \end{column}
-        \begin{column}{0.32 \textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics[width=\textwidth]{figures/dags/mediating.png}
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Natural direct and indirect effects are defined counterfactually}
-    \begin{columns}
-        \begin{column}{0.67 \textwidth}
-            \begin{table}[]
-                \begin{tabular}{lcrl}
-                    Treatment   & meditation      & $T_i$          & $\in \set{0, 1} $     \\
-                    Outcome     & anxiety         & $Y_i$          & $\in \R$              \\
-                    Mediators   & cognitive state & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-                    Confounders & age \& sex      & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
-                \end{tabular}
-            \end{table}
-            \begin{align*}
-                \nde & = \E{Y_i (t, \X_{i \cdot}(t^*)) - Y_i (t^*, \X_{i \cdot} (t^*))} \\
-                \nie & = \E{Y_i (t, \X_{i \cdot}(t)) - Y_i (t, \X_{i \cdot} (t^*))}
-            \end{align*}
-
-            If we knew cognitive state, we could use standard tools. But cognitive state is latent!
-        \end{column}
-        \begin{column}{0.33 \textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics[width=\textwidth]{figures/dags/mediating.png}
-                \centering
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Psychologists measure latent cognitive state using surveys}
-
-    For example, the NIH Toolbox loneliness survey
-
-    \begin{enumerate}
-        \item I feel alone and apart from others
-        \item I feel left out
-        \item I feel that I am no longer close to anyone
-        \item I feel alone
-        \item I feel lonely
-    \end{enumerate}
-
-    \begin{table}[]
-        \begin{tabular}{ccccc}
-            Never                      & Rarely                     & Sometimes                  & Usually                    & Always                     \\
-            1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle}
-        \end{tabular}
-    \end{table}
-\end{frame}
-
-\begin{frame}{The experimenters ran weekly surveys of the study participants}
-
-    \begin{itemize}
-        \item NIH Toolbox Loneliness (5 questions)
-        \item Five Facet Mindfulness Questionnaire Acting with Awareness subscale (8 questions)
-        \item Drexel Defusion Scale (10 questions)
-        \item Meaning in Life Questionnaire (10 questions)
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Another survey: the Meaning in Life Questionnaire}
-
-    \begin{enumerate}
-        \item I understand my life's meaning.
-        \item I am looking for something that makes my life feel meaningful.
-        \item I am always looking to find my life's purpose.
-        \item My life has a clear sense of purpose.
-        \item I have a good sense of what makes my life meaningful.
-        \item I have discovered a satisfying life purpose.
-        \item I am always searching for something that makes my life feel significant.
-        \item I am seeking a purpose or mission for my life
-        \item My life has no clear purpose.
-        \item I am searching for meaning in my life.
-    \end{enumerate}
-
-    \footnotesize
-    \resizebox{\linewidth}{!}{
-        \begin{tabular}{ccccccc}
-            Absolutely untrue          & Mostly untrue              & Somewhat untrue            & Can't say true or false    & Somewhat true              & Mostly true                & Absolutely true            \\
-            1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle} & 6 \faIcon[regular]{circle} & 7 \faIcon[regular]{circle}
-        \end{tabular}
-    }
-\end{frame}
-
-\begin{frame}{The survey responses form a bipartite network}
-    \centering
-    \begin{figure}
-        \includegraphics{figures/week4-responses.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{We model survey responses using a factor model}
-
-    Suppose $A \in \R^{n \times m}$ is the matrix of survey responses. Then
-
-    \begin{equation*}
-        \E[X, Z]{A} = X Z^T
-    \end{equation*}
-
-    \begin{table}[]
-        \begin{tabular}{lcl}
-            Participant embeddings & $X$ & $\in \R^{n \times d}$ \\
-            Question embeddings    & $Z$ & $\in \R^{m \times d}$
-        \end{tabular}
-    \end{table}
-
-\end{frame}
-
-\begin{frame}{We estimate latent cognitive state by embedding the network}
-
-    \begin{definition}[ASE]
-
-        Given a network $A$, the $d$-dimensional \emph{adjacency spectral embeddings} of $A$ is
-        \begin{align*}
-            \Xhat = \Uhat \Shat^{1/2} ~\text{ and } \widehat{Z} = \Vhat \Shat^{1/2}
-        \end{align*}
-        \noindent where $\Uhat \Shat \Vhat^T$ is the rank-$d$ truncated singular value decomposition of $A$.
-    \end{definition}
-
-    \begin{lemma}
-        Under a suitable low-rank model, there are $d \times d$ orthogonal matrices $Q_1, Q_2$ such that
-        % TODO: is it the same Q for both the left and right co-factors
-        \begin{equation*}
-            \max_{i \in [n]} \, \norm*{\Xhat_{i \cdot} - \X_{i \cdot} Q_1} = \op{1}
-            ~\text{ and }~
-            \max_{i \in [n]} \, \norm*{\Vhat_{i \cdot} - V_{i \cdot} Q_2} = \op{1}.
-        \end{equation*}
-    \end{lemma}
-\end{frame}
-
-
-\begin{frame}{We must estimate the number of latent factors $d$}
-    \centering
-    \begin{figure}
-        \includegraphics{figures/rank-determination.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Participants embed into an inocuous latent space}
-    \centering
-    \begin{figure}
-        \includegraphics[width=\textwidth]{figures/xhat.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{The survey questions are largely redundant}
-    \begin{figure}
-        \includegraphics{figures/vhat.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Recap so far}
-
-    \begin{itemize}
-        \item Psychologists hoped to find four latent factors corresponding to loneliness, meaning in life, etc, etc
-        \item We only found two "do you feel good", and "do you feel bad"
-        \item People basically answer all the questions exactly the same
-        \item Still curious how much the latent well-being factors account for decrease in anxiety
-    \end{itemize}
-
-\end{frame}
-
-\begin{frame}{We use survey responses to estimate latent participant embeddings}
-    \centering
-    \begin{figure}
-        \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
-    \end{figure}
-\end{frame}
-
-
-\begin{frame}{The identifying assumptions can be expressed counterfactually}
-
-    The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
-    \begin{enumerate}
-        \item Consistency: \vspace{-3mm}
-              \begin{equation*} \begin{aligned}
-                       & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
-                       & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
-                      \vspace{-2mm}
-                  \end{aligned} \end{equation*}
-        \item Sequential ignorability:
-              \begin{equation*}
-                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
-                  ~~~\text{ and }~~~
-                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
-              \end{equation*}
-        \item Positivity:
-              \begin{equation*}
-                  \begin{aligned}
-                      \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
-                      \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
-                  \end{aligned}
-              \end{equation*}
-    \end{enumerate}
-
-\end{frame}
-
-\begin{frame}{Under semi-parametric assumptions, causal effects are regression coefficients}
-
-    If the non-parametric identification conditions hold and also
-    \begin{equation*}
-        \begin{aligned}
-            \underbrace{\E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}}_{\R}
-             & = \underbrace{\betazero}_{\R}
-            + \underbrace{T_i}_{\{0, 1\}} \underbrace{\betat}_{\R}
-            + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\betac}_{\R^{p}}
-            + \underbrace{\X_{i \cdot}}_{\R^{1 \times d}} \underbrace{\betax}_{\R^d}, \\
-            \underbrace{\E[T_i, \C_{i \cdot}]{\X_{i \cdot}}}_{\R^{1 \times d}}
-             & = \underbrace{\thetazero}_{\R^{1 \times d}}
-            + \underbrace{T_i}_{\{0, 1\}} \underbrace{\thetat}_{\R^{1 \times d}}
-            + \underbrace{\C_{i \cdot}}_{\R^{1 \times p}} \underbrace{\Thetac}_{\R^{p \times d}}
-        \end{aligned}
-    \end{equation*}
-    Then
-    \begin{align*}
-        \ndef & = \paren*{t - t^*} \, \betat            \\
-        \nief & = \paren*{t - t^*} \, \thetat \, \betax
-    \end{align*}
-
-\end{frame}
-
-\begin{frame}{We using estimated $\Xhat$ in place of unobserved $\X$ in regression estimators}
-    Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C \end{bmatrix} \in \R^{n \times (p + 2)}$.
-    \begin{equation*}
-        \begin{bmatrix}
-            \betazerohat \\
-            \betathat    \\
-            \betachat    \\
-            \betaxhat
-        \end{bmatrix}
-        = \paren*{\Dhat^T \Dhat}^{-1} \Dhat^T Y
-        \quad \text{and} \quad
-        \Thetahat
-        = \paren*{\Wfull^T \Wfull}^{-1} \Wfull^T \Xhat.
-    \end{equation*}
-
-    \begin{align*}
-        \ndehat & = \paren*{t - t^*} \, \betathat               \\
-        \niehat & = \paren*{t - t^*} \, \thetathat \, \betaxhat
-    \end{align*}
-\end{frame}
-
-\begin{frame}{Regression coefficients are asymptotically normal}
-
-    \begin{theorem}
-
-        \vspace{2mm}
-
-        Under a suitably well-behaved network model and some moment conditions on regression errors, there is an unknown orthogonal matrix $Q$ such that
-        \begin{equation*}
-            \begin{aligned}
-                \sqrt{ n } \,
-                 & \Sigmahatbeta^{-1/2}
-                \begin{pmatrix}
-                    \betawhat - \betaw \\
-                    Q \, \betaxhat - \betax
-                \end{pmatrix}
-                \to
-                \Normal{0}{I_d}, and     \\
-                \sqrt{ n } \,
-                 & \Sigmahattheta^{-1/2}
-                \begin{pmatrix}
-                    \vecc \paren*{\Thetahat \, Q^T} - \Thetavec
-                \end{pmatrix}
-                \to
-                \Normal{0}{I_{p d}}.
-            \end{aligned}
-        \end{equation*}
-        \noindent where $\Sigmahattheta^{-1/2}$ and $\Sigmahatbeta^{-1/2}$ are the typical heteroscedasticity robust covariance estimators, with $\Xhat$ plugged in for $\X$.
-    \end{theorem}
-\end{frame}
-
-\begin{frame}{Causal estimators are asymptotically normal}
-
-    \begin{theorem}
-        \vspace{2mm}
-
-        Under the same statistical assumptions as before, plus mediating homophily,
-        \begin{align*}
-            \sqrt{n \, \sigmahatnde} \paren*{\ndehat - \nde}
-             & \to
-            \Normal{0}{1}, \text { and } \\
-            \sqrt{n \, \sigmahatnie} \paren*{\niehat - \nie}
-             & \to
-            \Normal{0}{1}.
-        \end{align*}
-        \noindent where $\sigmahatnde$ and $\sigmahatnie$ are variance estimators derived via the delta method and the previous theorem.
-
-    \end{theorem}
-
-\end{frame}
-
-\begin{frame}{Latent factors increase anxiety, meditation decreases anxiety}
-    \centering
-    \begin{figure}
-        \includegraphics[width=\textwidth]{figures/outcome-coefficients.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Meditation causes a small but significant shift in latent space}
-    \centering
-    \begin{figure}
-        \includegraphics{figures/latent-intervention.png}
-    \end{figure}
-\end{frame}
-
-
-\begin{frame}{We estimate that most of the effect is along the direct pathway}
-
-    \begin{columns}
-        \begin{column}{0.35\textwidth}
-            \begin{align*}
-                \atehat & = -2.7 \pm 1.3 \\
-                \ndehat & = -1.8 \pm 1.1 \\
-                \niehat & = -1 \pm 0.7
-            \end{align*}
-
-        \end{column}
-        \begin{column}{0.65\textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Takeaways}
-
-    \begin{itemize}
-        \item We developed a method to decompose causal effects into effects operating along direct and indirect pathways in a low-rank latent space
-        \item "Latent causal effects" sounds scary, but can often just look at your data to interpret them
-    \end{itemize}
-
-    \begin{columns}
-        \begin{column}{0.3 \textwidth}
-            \begin{align*}
-                \ate    & = \nde + \nie  \\
-                \atehat & = -2.7 \pm 1.3 \\
-                \ndehat & = -1.8 \pm 1.1 \\
-                \niehat & = -1 \pm 0.7
-            \end{align*}
-        \end{column}
-        \begin{column}{0.7 \textwidth}
-            \centering
-            \begin{figure}[ht]
-                \includegraphics[width=\textwidth]{figures/dags/bipartite-mediation.png}
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-% Visualize shift caused by intervention in latent space // how anxiety varies in that latent space
-
-
-
-% \begin{frame}{We propose a model where social groups in networks mediate causal effects}
-
-%     \begin{columns}
-
-%         \column{0.35 \textwidth}
-
-%         \footnotesize
-
-%         \begin{table}[]
-%             \begin{tabular}{lcl}
-%                 Adjacency matrix      & $A$            & $\in \R^{n \times n}$ \\
-%                 Edge $i \sim j$       & $A_{ij}$       & $\in \R$              \\
-%                 Treatment             & $T_i$          & $\in \set{0, 1}$      \\
-%                 Outcome               & $Y_i$          & $\in \R$              \\
-%                 Confounders           & $\C_{i \cdot}$ & $\in \R^{1 \times p}$ \\
-%                 Friend group (latent) & $\X_{i \cdot}$ & $\in \R^{1 \times d}$
-%             \end{tabular}
-%         \end{table}
-
-%         \column{0.65 \textwidth}
-
-%         \begin{figure}[ht]
-%             \centering
-%             \includegraphics[width=\textwidth]{figures/dags/homophily-mediating.png}
-%             \label{fig:mediating}
-%         \end{figure}
-%     \end{columns}
-
-%     \centering
-%     \scriptsize Structural causal model for network mediation in a network with two nodes $i$ and $j$
-
-
-%     % \textbf{Motivating example:} friend groups mediate the effect of sex on smoking in an adolescent social network
-
-%     % \begin{itemize}
-%     %     \item Girls smoke than boys
-%     %     \item Girls and boys in different friend groups
-%     %     \item Smoking varies with friend group
-%     % \end{itemize}
-
-
-% \end{frame}
-
-\begin{frame}{Thank you! Questions?}
-
-    Read the manuscript at \url{https://arxiv.org/abs/2212.12041}
-
-    R package \href{https://github.com/alexpghayes/latentnetmediate}{latentnetmediate}
-
-    \textbf{Stay in touch}
-
-    \begin{itemize}
-        \item[] \faIcon{twitter} \href{https://twitter.com/alexpghayes}{@alexpghayes}
-        \item[] \faIcon[regular]{envelope} \href{mailto:alex.hayes@wisc.edu}{alex.hayes@wisc.edu}
-        \item[] \faIcon{wordpress} \url{https://www.alexpghayes.com} % \faIcon{sitemap} \faIcon{firefox-browser} 
-        \item[] \faIcon{github} \url{https://github.com/alexpghayes}
-    \end{itemize}
-
-    \textbf{I'm looking for a post-doc starting Fall 2024, say hi if this work interests you!}
-\end{frame}
-
-\appendix
 
 % \begin{frame}{Disambiguation: contagion ($Y_j \to Y_i$) is not allowed}
 
@@ -949,64 +563,6 @@
 %     See Appendix of manuscript for details.
 
 % \end{frame}
-
-\begin{frame}{mindful action subscale}
-
-    \begin{enumerate}
-        \item When I do things, my mind wanders off and I'm easily distracted.
-        \item I don't pay attention to what I'm doing because I'm daydreaming, worrying, or otherwise distracted.
-        \item I am easily distracted.
-        \item I find it difficult to stay focused on what's happening in the present.
-        \item It seems I am 'running on automatic' without much awareness of what I'm doing.
-        \item I rush through activities without being really attentive to them.
-        \item I do jobs or tasks automatically without being aware of what I'm doing.
-        \item I find myself doing things without paying attention.
-    \end{enumerate}
-
-    \resizebox{\linewidth}{!}{
-        \begin{tabular}{ccccc}
-            Never or very rarely true  & Rarely true                & Sometimes true             & Often true                 & Very often or always true  \\
-            1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle}
-        \end{tabular}
-    }
-\end{frame}
-
-
-
-\begin{frame}{Drexel Defusion Scale}
-    \begin{enumerate}
-        \item Feelings of anger. You become angry when someone takes your place in a long line. To what extent would you normally be able to defuse from feelings of anger?
-        \item Cravings for food. You see your favorite food and have the urge to eat it. To what extent would you normally be able to defuse from cravings for food?
-        \item Physical pain. Imagine that you bang your knee on a table leg. To what extent would you normally be able to defuse from physical pain?
-        \item Anxious thoughts. Things have not been going well at school or your job, and work just keeps piling up. To what extent would you normally be able to defuse from anxious thoughts like "I'll never get this done."?
-        \item Thoughts of self. Imagine you are having a thought such as "no one likes me." To what extent would you normally be able to defuse from negative thoughts about yourself?
-        \item Thoughts of hopelessness. You are feeling sad and stuck in a difficult situation that has no obvious end in sight. You experience thoughts such as "Things will never get any better." To what extent would you normally be able to defuse from thoughts of hopelessness?
-        \item Thoughts about motivation or ability. Imagine you are having a thought such as "I can't do this" or "I just can't get started." To what extent would you normally be able to defuse from thoughts about motivation or ability?
-        \item Thoughts about your future. Imagine you are having thoughts like, "I'll never make it" or "I have no future." To what extent would you normally be able to defuse from thoughts about your future?
-        \item Sensations of fear. You are about to give a presentation to a large group. As you sit waiting for your turn, you start to notice your heart racing, butterflies in your stomach, and your hands trembling. To what extent would you normally be able to defuse from sensations of fear?
-        \item Feelings of sadness. Imagine that you lose out on something you really wanted. You have feelings of sadness. To what extent would you normally be able to defuse from feelings of sadness?
-    \end{enumerate}
-
-    \resizebox{\linewidth}{!}{
-        \begin{tabular}{cccccc}
-            Not at all                 & A little                   & Somewhat                   & Moderately                 & Quite a lot                & Very much                  \\
-            0 \faIcon[regular]{circle} & 1 \faIcon[regular]{circle} & 2 \faIcon[regular]{circle} & 3 \faIcon[regular]{circle} & 4 \faIcon[regular]{circle} & 5 \faIcon[regular]{circle}
-        \end{tabular}
-    }
-
-\end{frame}
-
-\begin{frame}{Network model}
-
-    \begin{definition}
-        Let $A \in \R^{n \times n}$ be a random symmetric matrix, such as the adjacency matrix of an undirected graph. Let $\Apop = \E[\X]{A} = \X \X^T$ be the expectation of $A$ conditional on $\X \in \R^{n \times d}$, which has independent and identically distributed rows $\X_{1 \cdot}, \dots, \X_{n \cdot}$. That is, $\Apop$ has $\rank \paren*{\Apop} = d$ and is positive semi-definite with eigenvalues $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_d > 0 = \lambda_{d+1} = \cdots = \lambda_n$. Conditional on $\X$, the upper-triangular elements of $A - \Apop$ are independent $(\nu_n, b_n)$-sub-gamma random variables.
-    \end{definition}
-
-    \begin{remark}
-        $\Apop = \X \X^T = (\X Q) (\X Q)^T$ for any $d \times d$ orthogonal matrix $Q$, the latent positions $\X$ are only identifiable up to an orthogonal transformation.
-    \end{remark}
-
-\end{frame}
 
 \bibliographystyle{chicago}
 \bibliography{2024-06-17-netsci}
