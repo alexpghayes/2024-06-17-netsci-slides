@@ -255,11 +255,36 @@ spectral embeddings}
     \end{columns}
 \end{frame}
 
-\begin{frame}{Goal: estimate direct and indirect effects as mediated by latent social groups}
+\begin{frame}{Causal effects on a network decompose into a social and non-social component}
     \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{./figures/dags/homophily-mediating.png}
     \end{figure}
+\end{frame}
+
+\begin{frame}{Direct and indirect effects are identified under counterfactual assumptions}
+    The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
+    \begin{enumerate}
+        \item Consistency: \vspace{-3mm}
+              \begin{equation*} \begin{aligned}
+                       & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
+                       & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
+                      \vspace{-2mm}
+                  \end{aligned} \end{equation*}
+        \item Sequential ignorability:
+              \begin{equation*}
+                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
+                  ~~~\text{ and }~~~
+                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
+              \end{equation*}
+        \item Positivity:
+              \begin{equation*}
+                  \begin{aligned}
+                      \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
+                      \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
+                  \end{aligned}
+              \end{equation*}
+    \end{enumerate}
 \end{frame}
 
 \begin{frame}{We want to use a regression estimator for direct and indirect effects}
@@ -288,7 +313,7 @@ spectral embeddings}
     \textbf{Problem}: We don't see the latent social groups $\X$, can't fit regressions
 \end{frame}
 
-\begin{frame}{Latent positions $X$ can be estimated via principle components analysis}
+\begin{frame}{Latent positions $X$ can be estimated via principal components analysis}
     \begin{definition}[ASE]
         Given a network $A$, the $d$-dimensional \emph{adjacency spectral embedding} of $A$ is
         \begin{align*}
@@ -349,7 +374,7 @@ spectral embeddings}
     \end{theorem}
 
     \centering
-    Note: must correctly specify dimension of latent positions $d$
+    Note: theory requires consistent estimate of latent dimension $d$
 \end{frame}
 
 \begin{frame}{Aside: our regression results are substantially more general than similar work}
@@ -379,53 +404,121 @@ spectral embeddings}
         \end{align*}
         \noindent where $\sigmahatnde$ and $\sigmahatnie$ are rather unfriendly variance estimators derived via the delta method and the previous theorem.
     \end{theorem}
+
+    \begin{block}{A useful cancellation}
+        \begin{equation*}
+            \niehat = \thetathat \, \betaxhat \to \thetat \, Q^T Q \, \betax = \thetat \betax = \nie
+        \end{equation*}
+    \end{block}
 \end{frame}
 
+\begin{frame}{Simulations show that overestimating the embedding dimension is okay}
+    \centering
+    \begin{figure}
+        \includegraphics[width=0.5\textwidth]{figures/misspecification/loss_average.pdf}
+    \end{figure}
+\end{frame}
 
 \begin{frame}{Application to Glasgow data}
 
-    % \item Estimated effects vary with the chosen dimension $d$ of the latent space
-    % \item Over-specifying $d$ is typically okay, but under-specifying $d$ leads to a failure to capture social structure in $\X$
-    % \item Once we capture enough social structure in $\X$, we see a significant indirect social effect that leads adolescent girls to smoke more
+    We fit the following regressions
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=.7\textwidth]{figures/glasgow/effects.png}
-        \caption*{\footnotesize Estimated direct and indirect effects of sex on tobacco usage in the Glasgow social network, adjusted for age and church attendance. Positive values indicate a greater propensity for adolescent boys to smoke, negative effects a greater propensity for adolescent girls to smoke.}
-        \label{fig:glasgow-estimates}
-    \end{figure}
+    \begin{equation*}
+        \begin{aligned}
+            \texttt{smoking} & \sim \texttt{sex + age + church + Xhat} \\
+            \texttt{Xhat}    & \sim \texttt{sex + age + church}.
+        \end{aligned}
+    \end{equation*}
 
-    Analysis:
-
-    No direct effect of gender on smoking behavior
-    Indirect effect mediated by network leading more girls to smoke
-    Agrees with previous analyses by sociologist
+    smoking a zero-one indicator
 \end{frame}
 
-\begin{frame}
-    \begin{block}{Pre-print}
-        Hayes, Alex, Mark M. Fredrickson, and Keith Levin. “Estimating Network-Mediated Causal Effects via Spectral Embeddings.” arXiv, April 14, 2023. \url{https://arxiv.org/abs/2212.12041}.
-    \end{block}
+\begin{frame}{Application to Glasgow data}
+    \begin{columns}
+        \begin{column}{0.75\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.05\textwidth]{figures/glasgow/effects.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.28\textwidth}
+            \footnotesize
+            \begin{itemize}
+                \item No direct effect of sex on smoking
+                \item Indirect social effect leads girls to smoke more
+                \item Interventions should try to disrupt social mechanisms
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
 
-    Takeaways:
-    \begin{itemize}
-        \item Latent network structure as a mediator
-        \item Network regression with causal applications
-        \item Consistency and asymptotic normality of ordinary least squares
-    \end{itemize}
+\begin{frame}{Takeaway 1: network regression is straightforward and easy}
+    Use ordinary least squares and principal components analysis to fit models \\
+    \begin{equation*}
+        \begin{aligned}
+            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax \\
+            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
+             & = \thetazero + T_i \thetat  + \C_{i \cdot} \Thetac                   \\
+        \end{aligned}
+    \end{equation*}
+    No distributional assumptions needed!
+\end{frame}
 
+\begin{frame}{Takeaway 2: network embeddings might not be confounders}
+    \centering
+    \textbf{Current practice}: estimate $\Xhat$, blindly throw into regression to control for ``confounding'' \\
+    \vspace{4mm}
+    This will lead to overcontrol bias!
+\end{frame}
+
+\begin{frame}{Takeaway 2: network embeddings might not be confounders}
+    When latent positions are confounders:
+    \begin{equation*}
+        \begin{aligned}                                                    \\
+            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{average} \\ \text{treatment} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \betax
+        \end{aligned}
+    \end{equation*}
+
+    When latent positions are mediators:
+    \begin{equation*}
+        \begin{aligned}                                                    \\
+            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{natural}     \\ \text{direct} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \underbrace{\betax}_{\substack{\text{effect of} \\ \text{$X$ on $Y$}}}  \\
+            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
+             & = \thetazero + T_i \underbrace{\thetat}_{\substack{\text{effect of} \\ \text{$T$ on $X$}}}  + \C_{i \cdot} \Thetac
+        \end{aligned}
+    \end{equation*}
+\end{frame}
+
+\begin{frame}{Thank you! Questions?}
     Future work:
     \begin{itemize}
-        \item Varimax rotation for interpretability
-        \item Extension to include peer effects
+        \item Varimax rotation for improved interpretability
+        \item Peer effects
     \end{itemize}
-
-    Contact info, slides \& link to manuscript: \href{www.alexpghayes.com}{https://www.alexpghayes.com}
+    \vspace{4mm}
+    \begin{block}{Pre-print}
+        Alex Hayes, Mark M. Fredrickson, and Keith Levin. “Estimating Network-Mediated Causal Effects via Spectral Embeddings.” arXiv, April 14, 2023. \url{https://arxiv.org/abs/2212.12041}.
+    \end{block}
+    \centering
+    Contact info \& slides: \href{www.alexpghayes.com}{https://www.alexpghayes.com}
 \end{frame}
 
+\section{Appendix}
 \appendix
 
-\begin{frame}{Peer effects}
+
+\begin{frame}{Can we include peer effects in the outcome regression model?}
+    \begin{equation*}
+        \begin{aligned}
+            Y_i
+            = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax +
+            \underbrace{\beta_\text{gt} \sum_{j \neq i} \frac{A_{ij} T_j}{\sum_i A_{ij}}}_\text{interference} +
+            \underbrace{\beta_\text{gy} \sum_{j \neq i} \frac{A_{ij} Y_j}{\sum_i A_{ij}}}_\text{``contagion''} +
+            \varepsilon_i
+        \end{aligned}
+    \end{equation*}
     \begin{itemize}
         \item Identifying peer effects in these models is very nuanced
               \begin{itemize}
@@ -435,59 +528,51 @@ spectral embeddings}
         \item When peer effects are unidentified, typically due to aliasing with $\betax$ or $\betazero$
               \begin{itemize}
                   \item Aliasing might occur only in the asymptotic limit
+                  \item Might already be accounting for peer effects via aliasing
               \end{itemize}
     \end{itemize}
-    \begin{equation*}
-        \begin{aligned}
-            \E[T, \C_{i \cdot}, \X_{i \cdot}, Y_{-i}, A]{Y_i}
-            = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax +
-            \underbrace{\beta_\text{gt} \sum_{j \neq i} \frac{A_{ij} T_j}{\sum_i A_{ij}}}_\text{interference} +
-            \underbrace{\beta_\text{gy} \sum_{j \neq i} \frac{A_{ij} Y_j}{\sum_i A_{ij}}}_\text{``contagion''}
-        \end{aligned}
-    \end{equation*}
-    \vspace{2mm}
-    Lots of research attention focused on using this kind of model for causal inference
 \end{frame}
 
-\begin{frame}{Identifying assumptions}
-    The random variables $(Y_i, Y_i(t, x), \X_{i \cdot}, \X_{i \cdot}(t), C_{i \cdot}, T_i)$ are independent over $i \in [n]$ and obey the following three properties.
-    \begin{enumerate}
-        \item Consistency: \vspace{-3mm}
-              \begin{equation*} \begin{aligned}
-                       & \text{if $T_i = t$, then $\X_{i \cdot}(t) = \X_{i \cdot}$ with probability 1, and}    \\
-                       & \text{if $T_i = t$ and $\X_{i \cdot} = x$, then $Y_i(t, x) = Y_i$ with probability 1}
-                      \vspace{-2mm}
-                  \end{aligned} \end{equation*}
-        \item Sequential ignorability:
-              \begin{equation*}
-                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
-                  ~~~\text{ and }~~~
-                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
-              \end{equation*}
-        \item Positivity:
-              \begin{equation*}
-                  \begin{aligned}
-                      \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
-                      \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
-                  \end{aligned}
-              \end{equation*}
-    \end{enumerate}
+\begin{frame}{Intervention has downstream impacts on network structure}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{figures/canonical-intervention/expected-a-pre-trt.pdf}
+                \caption{$\E[X]{A}$ prior to intervention.}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{figures/canonical-intervention/expected-a-post-trt.pdf}
+                \caption{$\E[X]{A}$ after intervention.}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}{Choosing $\widehat{d}$: overestimating the embedding dimension is fine}
-
-    \centering
-
-    \begin{figure}
-        \includegraphics[width=0.5\textwidth]{figures/misspecification/loss_average.pdf}
-    \end{figure}
-
+\begin{frame}{Intervention has downstream impacts on network structure}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{figures/canonical-intervention/a-untreated.pdf}
+                \caption{Realized network before intervention}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{figures/canonical-intervention/a-treated.pdf}
+                \caption{Realized network after intervention}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}{Interventions allowed}
-
-    Provided that controls $\C_{i \cdot}$ are sufficiently informative about group membership $\X_{i \cdot}$, treatment $T_i$ is allowed to cause:
-
+\begin{frame}{Interpreting interventions on social group membership}
+    Treatment $T_i$ is allowed to cause:
     \begin{itemize}
         \item Changes in popularity within a group
         \item Movement to a new friend group
@@ -495,9 +580,6 @@ spectral embeddings}
         \item Friendships becoming more or less likely between distinct friend groups
         \item Combinations of the above
     \end{itemize}
-
-    See Appendix of manuscript for details.
-
 \end{frame}
 
 \bibliographystyle{chicago}
