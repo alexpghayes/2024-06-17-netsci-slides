@@ -109,7 +109,7 @@ spectral embeddings}
             \vspace{2mm}
             \textbf{Indirect effect} of sex on smoking
             \begin{itemize}
-                \item Students to be friends with other students of same sex...
+                \item Students tend to be friends with other students of same sex...
                 \item ...friends induce one another to smoke
             \end{itemize}
         \end{column}
@@ -168,7 +168,7 @@ spectral embeddings}
         \begin{equation*}
             \begin{aligned}
                 \ate & = \nde + \nie                                               \\
-                     & = \E{Y(1, M(0)) - Y(0, M(0))} + \E{Y(1, M(1)) - Y(1, M(0))}
+                     & = \E{Y(1, X(0)) - Y(0, X(0))} + \E{Y(1, X(1)) - Y(1, X(0))}
             \end{aligned}
         \end{equation*}
         \centering
@@ -419,18 +419,56 @@ spectral embeddings}
     \end{figure}
 \end{frame}
 
+\begin{frame}{Motivation: understand causes of teenage smoking \citep{michell1996}}
+    \begin{columns}
+        \centering
+        \begin{column}{0.55\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.05\textwidth]{figures/glasgow/tobacco.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item 129 middle-schoolers in Glasgow
+                \item {\bf Social network} based on self-reported friendships
+                \item {\bf Auxiliary data:} spending money, leisure activities
+                \item {\bf Demographics:} sex, age
+                \item {\bf Behavior:} alcohol, cannabis and tobacco use
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{2mm}
+    \centering
+    \textbf{Question:} how does sex influence tobacco use?
+\end{frame}
+
 \begin{frame}{Application to Glasgow data}
-
-    We fit the following regressions
-
-    \begin{equation*}
-        \begin{aligned}
-            \texttt{smoking} & \sim \texttt{sex + age + church + Xhat} \\
-            \texttt{Xhat}    & \sim \texttt{sex + age + church}.
-        \end{aligned}
-    \end{equation*}
-
-    smoking a zero-one indicator
+    \begin{columns}
+        \centering
+        \begin{column}{0.55\textwidth}
+            We fit the following regressions
+            \vspace{2mm}
+            \begin{equation*}
+                \begin{aligned}
+                    \texttt{smoking} & \sim \texttt{sex + age + church + Xhat} \\
+                    \texttt{Xhat}    & \sim \texttt{sex + age + church}.
+                \end{aligned}
+            \end{equation*}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item 129 middle-schoolers in Glasgow
+                \item {\bf Social network} based on self-reported friendships
+                \item {\bf Auxiliary data:} spending money, leisure activities
+                \item {\bf Demographics:} sex, age
+                \item {\bf Behavior:} alcohol, cannabis and tobacco use
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{2mm}
+    \centering
+    \textbf{Question:} how does sex influence tobacco use?
 \end{frame}
 
 \begin{frame}{Application to Glasgow data}
