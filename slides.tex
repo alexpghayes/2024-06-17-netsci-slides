@@ -36,11 +36,6 @@ spectral embeddings}
 \author{Alex Hayes}
 \institute{Department of Statistics \\ University of Wisconsin-Madison}
 
-
-% \date{2023-08-09 @ JSM 2023 \\ Recent Developments in Causal Inference}
-% \author{Alex Hayes, Mark Fredrickson \& Keith Levin}
-
-
 \begin{document}
 
 \maketitle
@@ -128,7 +123,7 @@ spectral embeddings}
                     Treatment   & $T_i$          & $\in \set{0, 1} $     \\
                     Outcome     & $Y_i$          & $\in \R$              \\
                     Mediators   & $\X_{i \cdot}$ & $\in \R^{1 \times d}$ \\
-                    Confounders & $\C_{i \cdot}$ & $\in \R^{1 \times p}$
+                    Confounders & $C_{i \cdot}$  & $\in \R^{1 \times p}$
                 \end{tabular}
             \end{table}
         \end{column}
@@ -273,15 +268,15 @@ spectral embeddings}
                   \end{aligned} \end{equation*}
         \item Sequential ignorability:
               \begin{equation*}
-                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond \C_{i \cdot}
+                  \set{Y_i(t^*, x), \X_{i \cdot}(t)} \indep T_i \cond C_{i \cdot}
                   ~~~\text{ and }~~~
-                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, \C_{i \cdot}
+                  \set{Y_i(t^*, x)} \indep \X_{i \cdot}  \cond T_i = t, C_{i \cdot}
               \end{equation*}
         \item Positivity:
               \begin{equation*}
                   \begin{aligned}
-                      \P[T_i, \C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
-                      \P[\C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
+                      \P[T_i, C_{i \cdot}]{x} & > 0 \text{ for each }  x \in \supp(\X_{i \cdot}) \\
+                      \P[C_{i \cdot}]{t}      & > 0 \text{ for each }  t \in \supp(T_i)
                   \end{aligned}
               \end{equation*}
     \end{enumerate}
@@ -291,11 +286,11 @@ spectral embeddings}
     \begin{block}{Assumption}
         \begin{equation*}
             \begin{aligned}
-                \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-                 & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax
-                 & \text{outcome model}                                                 \\
-                \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
-                 & = \thetazero + T_i \thetat + \C_{i \cdot} \Thetac
+                \E[T_i, C_{i \cdot}, \X_{i \cdot}]{Y_i}
+                 & = \betazero + T_i \betat + C_{i \cdot} \betac + \X_{i \cdot} \betax
+                 & \text{outcome model}                                                \\
+                \E[T_i, C_{i \cdot}]{\X_{i \cdot}}
+                 & = \thetazero + T_i \thetat + C_{i \cdot} \Thetac
                  & \text{mediator model}
             \end{aligned}
         \end{equation*}
@@ -330,7 +325,7 @@ spectral embeddings}
 \end{frame}
 
 \begin{frame}{Estimated latent positions can plug directly into ordinary least squares}
-    Let $\Dhat = \begin{bmatrix} 1 & T & \C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & \C \end{bmatrix} \in \R^{n \times (p + 2)}$.
+    Let $\Dhat = \begin{bmatrix} 1 & T & C  & \Xhat \end{bmatrix} \in \R^{n \times (2 + p + d)}$ and $\Wfull = \begin{bmatrix} 1 & T & C \end{bmatrix} \in \R^{n \times (p + 2)}$.
     \begin{equation*}
         \begin{bmatrix}
             \betazerohat \\
@@ -493,10 +488,10 @@ spectral embeddings}
     Use ordinary least squares and principal components analysis to fit models \\
     \begin{equation*}
         \begin{aligned}
-            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-             & = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax \\
-            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
-             & = \thetazero + T_i \thetat  + \C_{i \cdot} \Thetac                   \\
+            \E[T_i, C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \betat + C_{i \cdot} \betac + \X_{i \cdot} \betax \\
+            \E[T_i, C_{i \cdot}]{\X_{i \cdot}}
+             & = \thetazero + T_i \thetat  + C_{i \cdot} \Thetac                   \\
         \end{aligned}
     \end{equation*}
     No distributional assumptions needed!
@@ -513,18 +508,18 @@ spectral embeddings}
     When latent positions are confounders:
     \begin{equation*}
         \begin{aligned}                                                    \\
-            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{average} \\ \text{treatment} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \betax
+            \E[T_i, C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{average} \\ \text{treatment} \\ \text{effect}}} + C_{i \cdot} \betac + \X_{i \cdot} \betax
         \end{aligned}
     \end{equation*}
 
     When latent positions are mediators:
     \begin{equation*}
         \begin{aligned}                                                    \\
-            \E[T_i, \C_{i \cdot}, \X_{i \cdot}]{Y_i}
-             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{natural}     \\ \text{direct} \\ \text{effect}}} + \C_{i \cdot} \betac + \X_{i \cdot} \underbrace{\betax}_{\substack{\text{effect of} \\ \text{$X$ on $Y$}}}  \\
-            \E[T_i, \C_{i \cdot}]{\X_{i \cdot}}
-             & = \thetazero + T_i \underbrace{\thetat}_{\substack{\text{effect of} \\ \text{$T$ on $X$}}}  + \C_{i \cdot} \Thetac
+            \E[T_i, C_{i \cdot}, \X_{i \cdot}]{Y_i}
+             & = \betazero + T_i \underbrace{\betat}_{\substack{\text{natural}     \\ \text{direct} \\ \text{effect}}} + C_{i \cdot} \betac + \X_{i \cdot} \underbrace{\betax}_{\substack{\text{effect of} \\ \text{$X$ on $Y$}}}  \\
+            \E[T_i, C_{i \cdot}]{\X_{i \cdot}}
+             & = \thetazero + T_i \underbrace{\thetat}_{\substack{\text{effect of} \\ \text{$T$ on $X$}}}  + C_{i \cdot} \Thetac
         \end{aligned}
     \end{equation*}
 \end{frame}
@@ -551,7 +546,7 @@ spectral embeddings}
     \begin{equation*}
         \begin{aligned}
             Y_i
-            = \betazero + T_i \betat + \C_{i \cdot} \betac + \X_{i \cdot} \betax +
+            = \betazero + T_i \betat + C_{i \cdot} \betac + \X_{i \cdot} \betax +
             \underbrace{\beta_\text{gt} \sum_{j \neq i} \frac{A_{ij} T_j}{\sum_i A_{ij}}}_\text{interference} +
             \underbrace{\beta_\text{gy} \sum_{j \neq i} \frac{A_{ij} Y_j}{\sum_i A_{ij}}}_\text{``contagion''} +
             \varepsilon_i
